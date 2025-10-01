@@ -131,7 +131,7 @@ namespace DigiSim
                     else if (be is ResetGenerator)
                         parms += "d" + ((ResetGenerator)be).ResetTime.ToString();
                     else if (be is RC_LP)
-                        parms += "d" + ((RC_LP)be).R.ToString() + "|d" + ((RC_LP)be).C.ToString();
+                        parms += "d" + ((RC_LP)be).RL.ToString() + "|d" + ((RC_LP)be).RH.ToString() + "|d" + ((RC_LP)be).C.ToString();
                     else if (be is RC_HP)
                         parms += "d" + ((RC_HP)be).C.ToString() + "|d" + ((RC_HP)be).R.ToString();
                     else if (be is RC_HP)

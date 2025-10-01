@@ -330,9 +330,6 @@ namespace SimBase
         {
             set
             {
-                //if ((this.Owner.Name == "U85") && (PinNo == "1"))
-                //    Debug.WriteLine("");
-
                 if (value != newOutState)
                 {
                     newOutState = value;

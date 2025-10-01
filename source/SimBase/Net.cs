@@ -52,6 +52,16 @@ namespace SimBase
         /// <summary>Current time value.</summary>
         private double currentTime;
 
+        /// <summary>Number of connected outputs currently pulling Low.</summary>
+        private int countL;
+        /// <summary>Number of connected outputs currently pulling High.</summary>
+        private int countH;
+        /// <summary>Number of connected outputs currently in high impedance.</summary>
+        private int countZ;
+        /// <summary>Number of connected outputs currently in undefined state.</summary>
+        private int countU;
+
+
         /// <summary>
         /// Enumeration of possible optimized modes.
         /// </summary>
@@ -250,7 +260,7 @@ namespace SimBase
         /// <returns>Determined SignalState.</returns>
         private SignalState GetStateDigital()
         {
-            int countL=0, countH=0,countZ=0,countU=0;
+            countL = 0; countH = 0; countZ = 0; countU=0;
             foreach (Pin pin in outputs)
             {
                 SignalState state = pin.State;
@@ -409,6 +419,46 @@ namespace SimBase
         }
 
         /// <summary>
+        /// Get the SignalState of connected digital outputs excluding the specified pin.
+        /// </summary>
+        /// <param name="ExcludePin">Pin to exclude from the query.</param>
+        /// <returns>State of the net excluding the specified pin</returns>
+        public SignalState GetExclusiveState(Pin ExcludePin)
+        {
+            countL = 0; countH = 0; countZ = 0; countU = 0;
+            foreach (Pin pin in outputs)
+            {
+                if (pin != ExcludePin) 
+                {
+                    SignalState state = pin.State;
+                    if ((pin.Mode == LineMode.BiDir) && (pin.DriverActive == false))
+                        state = SignalState.Z;
+                    else if ((pin.Mode == LineMode.OpenDrain) && ((pin.DriverActive == false) || (pin.State == SignalState.H)))
+                        state = SignalState.Z;
+
+                    switch (state)
+                    {
+                        case SignalState.L: countL++; break;
+                        case SignalState.H: countH++; break;
+                        case SignalState.U: countU++; break;
+                        case SignalState.Z: countZ++; break;
+                    }
+                }
+            }
+
+            if ((countU > 0) || ((countL > 0) && (countH > 0)))
+                return SignalState.U;
+
+            if ((countL > 0) && (countH == 0))
+                return SignalState.L;
+
+            if ((countL == 0) && (countH > 0))
+                return SignalState.H;
+            return SignalState.Z;
+        }
+
+
+        /// <summary>
         /// Restart the simulation to all pins.
         /// </summary>
         public void SimulationRestart()
@@ -475,6 +525,37 @@ namespace SimBase
             return ((NetName == "VSS") || (NetName == "GND") || (NetName == "L") || (NetName == "LO") || (NetName == "LOW"));
         }
 
+        /// <summary>
+        /// Gets the number of connected outputs currently pulling Low.
+        /// </summary>
+        public int CountL
+        {
+            get { return countL; }
+        }
+
+        /// <summary>
+        /// Gets the number of connected outputs currently pulling High.
+        /// </summary>
+        public int CountH
+        {
+            get { return countH; }
+        }
+
+        /// <summary>
+        /// Gets the number of connected outputs currently in high impedance.
+        /// </summary>
+        public int CountZ
+        {
+            get { return CountZ; }
+        }
+
+        /// <summary>
+        /// Gets the number of connected outputs currently in undefined state.
+        /// </summary>
+        public int CountU
+        {
+            get { return countU; }
+        }
     }
 
 
@@ -533,12 +614,21 @@ namespace SimBase
         }
 
         /// <summary>
-        /// Remove item at index i;
+        /// Remove item at index i.
         /// </summary>
         /// <param name="i">Index of element to remove.</param>
         public void RemoveAt(int i)
         {
             pins.RemoveAt(i);
+        }
+
+        /// <summary>
+        /// Remove item from pin list.
+        /// </summary>
+        /// <param name="Pin">Pin element to remove.</param>
+        public void Remove(Pin Pin)
+        {
+            pins.Remove(Pin);
         }
 
         /// <summary>
@@ -557,6 +647,7 @@ namespace SimBase
         {
             get { return pins.Count; }
         }
+
     }
 
 

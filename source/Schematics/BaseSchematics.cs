@@ -387,6 +387,34 @@ namespace Schematics
             return null;
         }
 
+        /// <summary>
+        /// Remove the element and all its connections from the element list.
+        /// </summary>
+        /// <param name="element">Element to remove.</param>
+        public void RemoveElement(BaseElement element)
+        {
+            if (element != null)
+            {
+                foreach (Pin pin in element.Power)
+                    pin.ConnectedNet.ConnectedPins.Remove(pin);
+
+                foreach (Pin pin in element.Ground)
+                    pin.ConnectedNet.ConnectedPins.Remove(pin);
+
+                foreach (Pin pin in element.Passive)
+                    pin.ConnectedNet.ConnectedPins.Remove(pin);
+
+                for (int i = 0; i < element.Inputs.Length; i++)
+                    foreach (Pin pin in element.Inputs[i])
+                        pin.ConnectedNet.ConnectedPins.Remove(pin);
+
+                for (int i = 0; i < element.Outputs.Length; i++)
+                    foreach (Pin pin in element.Outputs[i])
+                        pin.ConnectedNet.ConnectedPins.Remove(pin);
+
+                Elements.Remove(element);
+            }
+        }
 
         /// <summary>
         /// Gets the used time interval in ns.

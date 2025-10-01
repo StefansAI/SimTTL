@@ -83,12 +83,12 @@
             this.nudSimulationContinueTime = new System.Windows.Forms.NumericUpDown();
             this.label10 = new System.Windows.Forms.Label();
             this.pnTop = new System.Windows.Forms.Panel();
+            this.panel5 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.pnBottom = new System.Windows.Forms.Panel();
-            this.splitter1 = new System.Windows.Forms.Splitter();
-            this.panel4 = new System.Windows.Forms.Panel();
-            this.panel5 = new System.Windows.Forms.Panel();
             this.panel6 = new System.Windows.Forms.Panel();
+            this.panel4 = new System.Windows.Forms.Panel();
+            this.splitter1 = new System.Windows.Forms.Splitter();
             this.pnControl.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudSimulationMaxTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSimulationInterval)).BeginInit();
@@ -100,11 +100,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvStimulus)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSimulationContinueTime)).BeginInit();
             this.pnTop.SuspendLayout();
+            this.panel5.SuspendLayout();
             this.panel2.SuspendLayout();
             this.pnBottom.SuspendLayout();
-            this.panel4.SuspendLayout();
-            this.panel5.SuspendLayout();
             this.panel6.SuspendLayout();
+            this.panel4.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnControl
@@ -564,6 +564,17 @@
             this.pnTop.Size = new System.Drawing.Size(828, 345);
             this.pnTop.TabIndex = 25;
             // 
+            // panel5
+            // 
+            this.panel5.Controls.Add(this.cbOutput);
+            this.panel5.Controls.Add(this.cbStimulusSignalSelector);
+            this.panel5.Controls.Add(this.dgvStimulus);
+            this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel5.Location = new System.Drawing.Point(0, 66);
+            this.panel5.Name = "panel5";
+            this.panel5.Size = new System.Drawing.Size(828, 279);
+            this.panel5.TabIndex = 26;
+            // 
             // panel2
             // 
             this.panel2.Controls.Add(this.label1);
@@ -592,14 +603,17 @@
             this.pnBottom.Size = new System.Drawing.Size(828, 332);
             this.pnBottom.TabIndex = 26;
             // 
-            // splitter1
+            // panel6
             // 
-            this.splitter1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.splitter1.Location = new System.Drawing.Point(0, 345);
-            this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(828, 3);
-            this.splitter1.TabIndex = 27;
-            this.splitter1.TabStop = false;
+            this.panel6.Controls.Add(this.cbConditionSelector);
+            this.panel6.Controls.Add(this.cbLogicSelector);
+            this.panel6.Controls.Add(this.cbTriggerSignalSelector);
+            this.panel6.Controls.Add(this.dgvTrigger);
+            this.panel6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel6.Location = new System.Drawing.Point(0, 44);
+            this.panel6.Name = "panel6";
+            this.panel6.Size = new System.Drawing.Size(828, 288);
+            this.panel6.TabIndex = 21;
             // 
             // panel4
             // 
@@ -614,28 +628,14 @@
             this.panel4.Size = new System.Drawing.Size(828, 44);
             this.panel4.TabIndex = 20;
             // 
-            // panel5
+            // splitter1
             // 
-            this.panel5.Controls.Add(this.dgvStimulus);
-            this.panel5.Controls.Add(this.cbOutput);
-            this.panel5.Controls.Add(this.cbStimulusSignalSelector);
-            this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel5.Location = new System.Drawing.Point(0, 66);
-            this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(828, 279);
-            this.panel5.TabIndex = 26;
-            // 
-            // panel6
-            // 
-            this.panel6.Controls.Add(this.dgvTrigger);
-            this.panel6.Controls.Add(this.cbConditionSelector);
-            this.panel6.Controls.Add(this.cbLogicSelector);
-            this.panel6.Controls.Add(this.cbTriggerSignalSelector);
-            this.panel6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel6.Location = new System.Drawing.Point(0, 44);
-            this.panel6.Name = "panel6";
-            this.panel6.Size = new System.Drawing.Size(828, 288);
-            this.panel6.TabIndex = 21;
+            this.splitter1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.splitter1.Location = new System.Drawing.Point(0, 345);
+            this.splitter1.Name = "splitter1";
+            this.splitter1.Size = new System.Drawing.Size(828, 3);
+            this.splitter1.TabIndex = 27;
+            this.splitter1.TabStop = false;
             // 
             // frmSettings
             // 
@@ -663,13 +663,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvStimulus)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSimulationContinueTime)).EndInit();
             this.pnTop.ResumeLayout(false);
+            this.panel5.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.pnBottom.ResumeLayout(false);
+            this.panel6.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             this.panel4.PerformLayout();
-            this.panel5.ResumeLayout(false);
-            this.panel6.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

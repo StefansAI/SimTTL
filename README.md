@@ -5,7 +5,7 @@
   <img src="docs/assets/images/mainscreen.png" />
 </div>
 <br>
-DigiSim is a simple simulator for TTL circuits to display the timing behavior similar to a logic analyzer. The GUI looks familiar to anyone programming and simulating Xilinx FPGAs. DigiSim that can load KiCad-9 netlists to create an internal model. File names embedded in the schematics can be used to automatically load binaries into RAMs, ROMs or GALs for the simulation. A text file can provide the mnemonic information for a very simple disassembler.
+DigiSim is a simple simulator for TTL circuits to display the timing behavior similar to a logic analyzer. The GUI looks familiar to anyone programming and simulating Xilinx FPGAs. DigiSim can load KiCad-9 netlists to create an internal model. File names embedded in the schematics can be used to automatically load binaries into RAMs, ROMs or GALs for the simulation. A text file can provide the mnemonic information for a very simple disassembler.
 <br><br>
 <h3 style="text-align: center;">Background</h3>
 <br>
@@ -63,7 +63,8 @@ Right-clicking on a signal brings up a context menu which allows changing the ra
 </div>
 The file menu offers 2 major sources for loading a schematic: Hardcoded built-in or KiCad 9 Netlist. Clicking on the netlist import will show and OpenFileDialog to navigate to the netlist file. Previously opened files will be listed to the right of the import menu item for quicker access.<br>
 Once a schematic had been loaded and simulated, it can be stored with all wave forms as a DigiSimFile. Few sample files are provided in the bin-folder, which can be loaded from the file menu.<br>
-Saving the current settings will write all current GUI settings to the XML file for this schematic to be automatically loaded at next load. This function is useful when loading a netlist after changing GUI settings.
+Saving the current settings will write all current GUI settings to the XML file for this schematic to be automatically loaded at next load. This function is useful when loading a netlist after changing GUI settings.<br>
+The print menu items allow printing of the current view portion or everything over the required amount of pages.<br>
 Exiting the application will also automatically save the settings.<br>
 Exporting connections can be useful for checking hardcoded or imported schematics against the design.
 <br><br>

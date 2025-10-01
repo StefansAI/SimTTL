@@ -147,7 +147,7 @@ namespace Schematics
             U1.I2A.ConnectedNet = netU1O6Y;
             Net netU1O2Y = new Net(U1.O2Y);
             U1.I3A.ConnectedNet = netU1O2Y;
-            Elements.Add(RCLP = new RC_LP("RCLP", new Net(U1.O3Y), 150, 47e-12));
+            Elements.Add(RCLP = new RC_LP("RCLP", new Net(U1.O3Y), 150, 150, 47e-12));
             U1.I4A.ConnectedNet = new Net(RCLP.Out);
             U1.I5A.ConnectedNet = new Net(U1.O6Y);
 

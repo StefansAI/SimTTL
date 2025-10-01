@@ -92,6 +92,10 @@ namespace DigiSim
         /// <summary>List of recently saved DigiSimFiles.</summary>
         public List<string> RecentDigiSimFiles;
 
+
+        /// <summary>Page settings to be used in street map printing.</summary>
+        public PageSettings PrintPageSettings = new PageSettings();
+
         #endregion Public Fields
 
         #region Private Fields
@@ -231,6 +235,32 @@ namespace DigiSim
                 }
                 catch { }
 
+                try
+                {
+                    XmlNode nodePrintSettings = nodeSettings.SelectSingleNode("print_settings");
+                    XmlNode nodePrintPaperSource = nodePrintSettings.SelectSingleNode("paper_source");
+                    PrintPageSettings.PaperSource.RawKind = Convert.ToInt32(nodePrintPaperSource.SelectSingleNode("raw_kind").InnerText);
+                    PrintPageSettings.PaperSource.SourceName = nodePrintPaperSource.SelectSingleNode("name").InnerText;
+
+                    XmlNode nodePrintPaperSize = nodePrintSettings.SelectSingleNode("paper_size");
+                    int rawKind = Convert.ToInt32(nodePrintPaperSize.SelectSingleNode("raw_kind").InnerText);
+                    string paperName = nodePrintPaperSize.SelectSingleNode("name").InnerText;
+                    int paperWidth = Convert.ToInt32(nodePrintPaperSize.SelectSingleNode("width").InnerText);
+                    int paperHeight = Convert.ToInt32(nodePrintPaperSize.SelectSingleNode("height").InnerText);
+                    PrintPageSettings.PaperSize = new PaperSize(paperName, paperWidth, paperHeight);
+                    PrintPageSettings.PaperSize.RawKind = rawKind;
+
+                    XmlNode nodePrintMargins = nodePrintSettings.SelectSingleNode("margins");
+                    PrintPageSettings.Margins.Left = Convert.ToInt32(nodePrintMargins.SelectSingleNode("left").InnerText);
+                    PrintPageSettings.Margins.Top = Convert.ToInt32(nodePrintMargins.SelectSingleNode("top").InnerText);
+                    PrintPageSettings.Margins.Right = Convert.ToInt32(nodePrintMargins.SelectSingleNode("right").InnerText);
+                    PrintPageSettings.Margins.Bottom = Convert.ToInt32(nodePrintMargins.SelectSingleNode("bottom").InnerText);
+
+                    PrintPageSettings.Landscape = Convert.ToBoolean(nodePrintSettings.SelectSingleNode("landscape").InnerText);
+                    PrintPageSettings.Color = Convert.ToBoolean(nodePrintSettings.SelectSingleNode("color").InnerText);
+                }
+                catch { }
+
                 fileLoadedCorrectly = LoadSchematics();
             }
             catch (Exception ex)
@@ -245,6 +275,8 @@ namespace DigiSim
         /// <returns>True, if file had been loaded successfully.</returns>
         public bool LoadSchematics()
         {
+            if (SchematicsName == "")
+                return false;
             return LoadSchematics(SchematicsFileName);
         }
 
@@ -447,6 +479,27 @@ namespace DigiSim
                     nodeDigiSimFiles.AppendChild(digisimItem).AppendChild(doc.CreateTextNode(RecentDigiSimFiles[i]));
                 }
 
+                XmlNode nodePrintSettings = nodeSettings.AppendChild(doc.CreateElement("print_settings"));
+                XmlNode nodePrintPaperSource = nodePrintSettings.AppendChild(doc.CreateElement("paper_source"));
+                nodePrintPaperSource.AppendChild(doc.CreateElement("name")).AppendChild(doc.CreateTextNode(PrintPageSettings.PaperSource.SourceName));
+                nodePrintPaperSource.AppendChild(doc.CreateElement("kind")).AppendChild(doc.CreateTextNode(PrintPageSettings.PaperSource.Kind.ToString()));
+                nodePrintPaperSource.AppendChild(doc.CreateElement("raw_kind")).AppendChild(doc.CreateTextNode(PrintPageSettings.PaperSource.RawKind.ToString()));
+
+                XmlNode nodePrintPaperSize = nodePrintSettings.AppendChild(doc.CreateElement("paper_size"));
+                nodePrintPaperSize.AppendChild(doc.CreateElement("raw_kind")).AppendChild(doc.CreateTextNode(PrintPageSettings.PaperSize.RawKind.ToString()));
+                nodePrintPaperSize.AppendChild(doc.CreateElement("name")).AppendChild(doc.CreateTextNode(PrintPageSettings.PaperSize.PaperName));
+                nodePrintPaperSize.AppendChild(doc.CreateElement("width")).AppendChild(doc.CreateTextNode(PrintPageSettings.PaperSize.Width.ToString()));
+                nodePrintPaperSize.AppendChild(doc.CreateElement("height")).AppendChild(doc.CreateTextNode(PrintPageSettings.PaperSize.Height.ToString()));
+
+                XmlNode nodePrintMargins = nodePrintSettings.AppendChild(doc.CreateElement("margins"));
+                nodePrintMargins.AppendChild(doc.CreateElement("left")).AppendChild(doc.CreateTextNode(PrintPageSettings.Margins.Left.ToString()));
+                nodePrintMargins.AppendChild(doc.CreateElement("top")).AppendChild(doc.CreateTextNode(PrintPageSettings.Margins.Top.ToString()));
+                nodePrintMargins.AppendChild(doc.CreateElement("right")).AppendChild(doc.CreateTextNode(PrintPageSettings.Margins.Right.ToString()));
+                nodePrintMargins.AppendChild(doc.CreateElement("bottom")).AppendChild(doc.CreateTextNode(PrintPageSettings.Margins.Bottom.ToString()));
+
+                nodePrintSettings.AppendChild(doc.CreateElement("landscape")).AppendChild(doc.CreateTextNode(PrintPageSettings.Landscape.ToString()));
+                nodePrintSettings.AppendChild(doc.CreateElement("color")).AppendChild(doc.CreateTextNode(PrintPageSettings.Color.ToString()));
+
                 doc.Save(fileName);
 
                 SaveSchematics();
@@ -462,7 +515,8 @@ namespace DigiSim
         /// </summary>
         public void SaveSchematics()
         {
-            SaveSchematics(SchematicsFileName);
+            if (SchematicsName != "")
+                SaveSchematics(SchematicsFileName);
         }
 
         /// <summary>

@@ -6,7 +6,7 @@
 //
 //=================================================
 
-//#define DEBUG_WRITE
+#define DEBUG_WRITE
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,6 +29,8 @@ using System.Xml.Linq;
 using System.Xml;
 using System.Drawing.Text;
 using System.Security;
+using System.Drawing.Printing;
+using System.Runtime.CompilerServices;
 
 namespace DigiSim
 {
@@ -173,31 +175,86 @@ namespace DigiSim
         #endregion GUI variables
 
         #region Signal Graph Colors
-        /// <summary>Reference to the pen object used for High and Low level standard drawing.</summary>
-        private Pen penSignalHLstd = new Pen(Color.FromArgb(100, 255, 100), 1);
-        /// <summary>Reference to the pen object used for High and Low level selected signal drawing.</summary>
-        private Pen penSignalHLsel = new Pen(Color.FromArgb(150, 255, 150), 2);
-        /// <summary>Reference to the pen object used for undefined level standard drawing.</summary>
-        private Pen penSignalUstd = new Pen(Color.FromArgb(255, 00, 00), 1);
-        /// <summary>Reference to the pen object used for undefined level selected signal drawing.</summary>
-        private Pen penSignalUsel = new Pen(Color.FromArgb(255, 50, 50), 2);
-        /// <summary>Reference to the pen object used for high impedance level standard drawing.</summary>
-        private Pen penSignalZstd = new Pen(Color.FromArgb(00, 00, 255), 1);
-        /// <summary>Reference to the pen object used for high impedance level selected signal drawing.</summary>
-        private Pen penSignalZsel = new Pen(Color.FromArgb(50, 50, 255), 2);
+        /// <summary>Index for all drawing Colors, Pens ad Brushes. 0:Screen, 1 Printing</summary>
+        private int drawIdx = 0;
+        /// <summary>Color definition for background.</summary>
+        private Color[] colorBackgr = new Color[] { Color.Black, Color.White };
+        /// <summary>Definition of the pen object used for High and Low level standard drawing.</summary>
+        private Pen[] penSignalHLstd = new Pen[] { new Pen(Color.FromArgb(100, 255, 100), 1), new Pen(Color.FromArgb(00, 100, 00), 2) };
+        /// <summary>Definition of the pen object used for High and Low level selected signal drawing.</summary>
+        private Pen[] penSignalHLsel = new Pen[] { new Pen(Color.FromArgb(150, 255, 150), 2), new Pen(Color.FromArgb(00, 200, 00), 2) };
+        /// <summary>Definition of the pen object used for undefined level standard drawing.</summary>
+        private Pen[] penSignalUstd = new Pen[] { new Pen(Color.FromArgb(255, 00, 00), 1), new Pen(Color.FromArgb(255, 00, 00), 2) };
+        /// <summary>Definition of the pen object used for undefined level selected signal drawing.</summary>
+        private Pen[] penSignalUsel = new Pen[] { new Pen(Color.FromArgb(255, 50, 50), 2), new Pen(Color.FromArgb(255, 50, 50), 2) };
+        /// <summary>Definition of the pen object used for high impedance level standard drawing.</summary>
+        private Pen[] penSignalZstd = new Pen[] { new Pen(Color.FromArgb(00, 00, 255), 1), new Pen(Color.FromArgb(00, 00, 255), 2) };
+        /// <summary>Definition of the pen object used for high impedance level selected signal drawing.</summary>
+        private Pen[] penSignalZsel = new Pen[] { new Pen(Color.FromArgb(50, 50, 255), 2), new Pen(Color.FromArgb(50, 50, 255), 2) };
 
-        /// <summary>Reference to the brush object used for High and Low level standard drawing.</summary>
-        private Brush brushSignalHLstd = new SolidBrush(Color.FromArgb(0, 50, 0));
-        /// <summary>Reference to the brush object used for High and Low level selected signal drawing.</summary>
-        private Brush brushSignalHLsel = new SolidBrush(Color.FromArgb(0, 80, 0));
-        /// <summary>Reference to the brush object used for undefined level standard drawing.</summary>
-        private Brush brushSignalUstd = new SolidBrush(Color.FromArgb(100, 0, 0));
-        /// <summary>Reference to the brush object used for undefined level selected signal drawing.</summary>
-        private Brush brushSignalUsel = new SolidBrush(Color.FromArgb(150, 0, 0));
-        /// <summary>Reference to the brush object used for high impedance level standard drawing.</summary>
-        private Brush brushSignalZstd = new SolidBrush(Color.FromArgb(0, 0, 150));
-        /// <summary>Reference to the brush object used for high impedance level selected signal drawing.</summary>
-        private Brush brushSignalZsel = new SolidBrush(Color.FromArgb(0, 0, 200));
+
+        /// <summary>Definition of the brush object used for text background.</summary>
+        private Brush[] brushBackgr = new SolidBrush[] { new SolidBrush(Color.Black), new SolidBrush(Color.White) };
+        /// <summary>Definition of the brush object used for background when text is highlighted.</summary>
+        private Brush[] brushBackgrSel = new SolidBrush[] { new SolidBrush(Color.LightGray), new SolidBrush(Color.LightGray) };
+
+        /// <summary>Definition of the brush object used for text.</summary>
+        private Brush[] brushText = new SolidBrush[] { new SolidBrush(Color.White), new SolidBrush(Color.Black) };
+        /// <summary>Definition of the brush object used for highlighted text.</summary>
+        private Brush[] brushTextSel = new SolidBrush[] { new SolidBrush(Color.Black), new SolidBrush(Color.Black) };
+        /// <summary>Definition of the brush object used for text.</summary>
+        private Brush[] brushGraphText = new SolidBrush[] { new SolidBrush(Color.White), new SolidBrush(Color.Black) };
+
+        /// <summary>Definition of the brush object used for High and Low level standard drawing.</summary>
+        private Brush[] brushSignalHLstd = new SolidBrush[] { new SolidBrush(Color.FromArgb(0, 50, 0)), new SolidBrush(Color.FromArgb(0, 200, 0)) };
+        /// <summary>Definition of the brush object used for High and Low level selected signal drawing.</summary>
+        private Brush[] brushSignalHLsel = new SolidBrush[] { new SolidBrush(Color.FromArgb(0, 80, 0)), new SolidBrush(Color.FromArgb(0, 250, 0)) };
+        /// <summary>Definition of the brush object used for undefined level standard drawing.</summary>
+        private Brush[] brushSignalUstd = new SolidBrush[] { new SolidBrush(Color.FromArgb(100, 0, 0)), new SolidBrush(Color.FromArgb(100, 0, 0)) };
+        /// <summary>Definition of the brush object used for undefined level selected signal drawing.</summary>
+        private Brush[] brushSignalUsel = new SolidBrush[] { new SolidBrush(Color.FromArgb(150, 0, 0)), new SolidBrush(Color.FromArgb(150, 0, 0)) };
+        /// <summary>Definition of the brush object used for high impedance level standard drawing.</summary>
+        private Brush[] brushSignalZstd = new SolidBrush[] { new SolidBrush(Color.FromArgb(0, 0, 150)), new SolidBrush(Color.FromArgb(0, 0, 150)) };
+        /// <summary>Definition of the brush object used for high impedance level selected signal drawing.</summary>
+        private Brush[] brushSignalZsel = new SolidBrush[] { new SolidBrush(Color.FromArgb(0, 0, 200)) , new SolidBrush(Color.FromArgb(0, 0, 200)) };
+
+        /// <summary>Definition of the pen object used for markers.</summary>
+        private Pen[] penMarker = new Pen[] { new Pen(Color.Blue, 1), new Pen(Color.Blue, 2) };
+        /// <summary>Definition of the pen object used for highlighted.</summary>
+        private Pen[] penMarkerSel = new Pen[] { new Pen(Color.LightBlue, 2), new Pen(Color.Blue, 2) };
+        /// <summary>Definition of the pen object used for markers.</summary>
+        private Pen[] penMarkerRect = new Pen[] { new Pen(Color.White, 1), new Pen(Color.Black, 2) };
+
+        /// <summary>Definition of the brush object used for marker.</summary>
+        private Brush[] brushMarkerText = new SolidBrush[] { new SolidBrush(Color.White), new SolidBrush(Color.White) };
+        /// <summary>Definition of the brush object used for selected marker.</summary>
+        private Brush[] brushMarkerTextSel = new SolidBrush[] { new SolidBrush(Color.Black), new SolidBrush(Color.White) };
+        /// <summary>Definition of the brush object used for marker background.</summary>
+        private Brush[] brushMarkerFill = new SolidBrush[] { new SolidBrush(Color.Blue), new SolidBrush(Color.Blue) };
+        /// <summary>Definition of the brush object used for marker background selected.</summary>
+        private Brush[] brushMarkerFillSel = new SolidBrush[] { new SolidBrush(Color.LightBlue), new SolidBrush(Color.Blue) };
+
+        /// <summary>Definition of the pen object used for cursors.</summary>
+        private Pen[] penCursor = new Pen[] { new Pen(Color.Yellow, 1), new Pen(Color.Yellow, 2) };
+        /// <summary>Definition of the pen object used for highlighted cursors.</summary>
+        private Pen[] penCursorSel = new Pen[] { new Pen(Color.LightYellow, 2), new Pen(Color.Yellow, 2) };
+
+        /// <summary>Definition of the brush object used for marker.</summary>
+        private Brush[] brushCursorText = new SolidBrush[] { new SolidBrush(Color.Black), new SolidBrush(Color.Black) };
+        /// <summary>Definition of the brush object used for selected marker.</summary>
+        private Brush[] brushCursorTextSel = new SolidBrush[] { new SolidBrush(Color.Black), new SolidBrush(Color.Black) };
+        /// <summary>Definition of the brush object used for marker background.</summary>
+        private Brush[] brushCursorFill = new SolidBrush[] { new SolidBrush(Color.Yellow), new SolidBrush(Color.Yellow) };
+        /// <summary>Definition of the brush object used for marker background selected.</summary>
+        private Brush[] brushCursorFillSel = new SolidBrush[] { new SolidBrush(Color.LightYellow), new SolidBrush(Color.Yellow) };
+
+        /// <summary>Definition of the pen object used for cursors.</summary>
+        private Pen[] penTrigger = new Pen[] { new Pen(Color.Red, 1), new Pen(Color.Red, 1) };
+        /// <summary>Definition of the brush object used for trigger marker.</summary>
+        private Brush[] brushTriggerText = new SolidBrush[] { new SolidBrush(Color.Black), new SolidBrush(Color.Black) };
+        /// <summary>Definition of the brush object used for trigger marker filled.</summary>
+        private Brush[] brushTriggerFill = new SolidBrush[] { new SolidBrush(Color.Red), new SolidBrush(Color.Red) };
+
         #endregion Signal Graph Colors
 
         #region Construction, opening and closing
@@ -354,6 +411,9 @@ namespace DigiSim
         /// </summary>
         private void SaveCurrentSettings()
         {
+            if (Schematics == null)
+                return;
+
             try
             {
                 AppSettings.SchematicsSource = Schematics.SchematicsSource;
@@ -558,14 +618,17 @@ namespace DigiSim
             for (int i = 0; i < AppSettings.CurrentTriggers.Count; i++)
             {
                 DisplaySignal ds = CreateLinkedDisplaySignal(AppSettings.CurrentTriggers[i].SignalName);
-                Trigger trg = new Trigger(AppSettings.CurrentTriggers[i].SignalName,
-                                          AppSettings.CurrentTriggers[i].Bits,
-                                          AppSettings.CurrentTriggers[i].Condition,
-                                          AppSettings.CurrentTriggers[i].CompareValue,
-                                          AppSettings.CurrentTriggers[i].CompareValueStr,
-                                          AppSettings.CurrentTriggers[i].Logic,
-                                          ds.Element, ds.Pins);
-                CurrentTriggers.Add(trg);
+                if (ds != null)
+                {
+                    Trigger trg = new Trigger(AppSettings.CurrentTriggers[i].SignalName,
+                                              AppSettings.CurrentTriggers[i].Bits,
+                                              AppSettings.CurrentTriggers[i].Condition,
+                                              AppSettings.CurrentTriggers[i].CompareValue,
+                                              AppSettings.CurrentTriggers[i].CompareValueStr,
+                                              AppSettings.CurrentTriggers[i].Logic,
+                                              ds.Element, ds.Pins);
+                    CurrentTriggers.Add(trg);
+                }
 
             }
             if (Schematics != null)
@@ -619,12 +682,15 @@ namespace DigiSim
             foreach (DisplaySignal signal in AppSettings.CurrentSignals)
             {
                 DisplaySignal ds = CreateLinkedDisplaySignal(signal.ScreenName);
-                ds.Radix = signal.Radix;
-                ds.Invert = signal.Invert;
-                ds.Reverse = signal.Reverse;
-                ds.Expanded = signal.Expanded;
-                ds.Highlight = signal.Highlight;
-                CurrentSignals.Add(ds);
+                if (ds != null)
+                {
+                    ds.Radix = signal.Radix;
+                    ds.Invert = signal.Invert;
+                    ds.Reverse = signal.Reverse;
+                    ds.Expanded = signal.Expanded;
+                    ds.Highlight = signal.Highlight;
+                    CurrentSignals.Add(ds);
+                }
             }
         }
 
@@ -802,9 +868,10 @@ namespace DigiSim
         /// <param name="i">Index into the current signal list CurrentSignals.</param>
         private void UpdateSignal(int i)
         {
-            DisplaySignalName(i);
-            DisplaySignalValue(CursorMarker.Time >= 0 ? CursorMarker.Time : DataTime, i);
-            DisplaySignalGraph(i);
+            DisplaySignalName(bmSignalNames, pbSignalNames, i);
+            int usedWith = 0;
+            DisplaySignalValue(bmSignalValues, pbSignalValues, CursorMarker.Time >= 0 ? CursorMarker.Time : DataTime, i, ref usedWith);
+            DisplaySignalGraph(bmSignalGraphs, pbSignalGraphs, i);
         }
 
         /// <summary>
@@ -812,10 +879,10 @@ namespace DigiSim
         /// </summary>
         private void UpdateDisplays()
         {
-            DisplaySignalNames();
-            DisplaySignalValues(CursorMarker.Time >= 0 ? CursorMarker.Time : DataTime);
-            DisplaySignalGraphs();
-            DisplaySignalGraphRuler();
+            DisplaySignalNames(ref bmSignalNames, pbSignalNames);
+            DisplaySignalValues(ref bmSignalValues, pbSignalValues, CursorMarker.Time >= 0 ? CursorMarker.Time : DataTime);
+            DisplaySignalGraphs(ref bmSignalGraphs, pbSignalGraphs);
+            DisplaySignalGraphRuler(ref bmSignalGraphRuler, pbSignalGraphRuler);
         }
 
         /// <summary>
@@ -1096,19 +1163,24 @@ namespace DigiSim
 
         #region Display Signal Names
         /// <summary>
-        /// Display all signal names by drawing them into the bmSignalNames bitmap.
+        /// Display all signal names by drawing them into the bmNames bitmap.
+        /// <param name="bmNames">Reference to the Bitmap to draw to.</param>
+        /// <param name="pbNames">Reference to the PictureBox object where bmNames is assigned.</param>
+        /// <return>Used width.</return>
         /// </summary>
-        private void DisplaySignalNames()
+        private int DisplaySignalNames(ref Bitmap bmNames, PictureBox pbNames)
         {
+            int usedWidth = 0;
             int h = GetBitmapHeight(ExpandAll);
-            if ((bmSignalNames == null) || (h != bmSignalNames.Height))
+            if ((bmNames == null) || (h != bmNames.Height))
             {
-                bmSignalNames = new Bitmap(pbSignalNames.ClientSize.Width, h);
-                pbSignalNames.Image = bmSignalNames;
+                bmNames = new Bitmap(pbSignalNames.ClientSize.Width, h);
+                if (pbNames != null)
+                    pbNames.Image = bmNames;
             }
+            Graphics grfx = Graphics.FromImage(bmNames);
             int y = TEXT_TOP;
-            Graphics grfx = Graphics.FromImage(bmSignalNames);
-            grfx.Clear(Color.Black);
+            grfx.Clear(colorBackgr[drawIdx]);
             for (int i = 0; i < CurrentSignals.Count; i++)
             {
                 string s = CurrentSignals[i].ScreenName;
@@ -1116,12 +1188,16 @@ namespace DigiSim
                     s += " #" + CurrentSignals[i].DisplayPins[0].Pin.PinNo.ToString();
 
                 SizeF size = grfx.MeasureString(s, NameFont);
-                CurrentSignals[i].TextRect = new Rectangle(MARGIN_LEFT, y, (int)size.Width + TEXT_LEFT - MARGIN_LEFT, (int)size.Height);
-
+                usedWidth = Math.Max(usedWidth, (int)size.Width + TEXT_LEFT + MARGIN_RIGHT);
+                CurrentSignals[i].TextRect = new Rectangle(MARGIN_LEFT, y, bmNames.Width - TEXT_LEFT + MARGIN_RIGHT, (int)size.Height);
+                //CurrentSignals[i].TextRect = new Rectangle(MARGIN_LEFT, y, (int)size.Width + TEXT_LEFT - MARGIN_LEFT, (int)size.Height);
                 y = DisplaySignalName(grfx, i);
-
             }
-            pbSignalNames.Refresh();
+
+            if (pbNames != null)
+                pbNames.Refresh();
+
+            return usedWidth;
         }
 
         /// <summary>
@@ -1136,14 +1212,17 @@ namespace DigiSim
         }
 
         /// <summary>
-        /// Draw a single signal name indexed by the variable i to the bmSignalNames bitmap.
+        /// Draw a single signal name indexed by the variable i to the bmNames bitmap.
         /// </summary>
         /// <param name="i">Index of the signal in the CurrentSignals list.</param>
+        /// <param name="bmNames">Reference to the Bitmap to draw to.</param>
+        /// <param name="pbNames">Reference to the PictureBox object where bmNames is assigned.</param>
         /// <returns>Return the y-coordinate for the next signal to be drawn.</returns>
-        private int DisplaySignalName(int i)
+        private int DisplaySignalName(Bitmap bmNames, PictureBox pbNames, int i)
         {
-            int y = DisplaySignalName(Graphics.FromImage(bmSignalNames), i, true);
-            pbSignalNames.Invalidate();
+            int y = DisplaySignalName(Graphics.FromImage(bmNames), i, true);
+            if (pbNames != null)
+                pbNames.Invalidate();
             return y;
         }
 
@@ -1171,15 +1250,15 @@ namespace DigiSim
             string s = CurrentSignals[i].ScreenName + pinNoStr;
             if (CurrentSignals[i].SelOrHigh == true)
             {
-                grfx.FillRectangle(Brushes.White, TEXT_LEFT, CurrentSignals[i].TextRect.Y, CurrentSignals[i].TextRect.Width, CurrentSignals[i].TextRect.Height);
-                grfx.DrawString(s, NameFont, Brushes.Black, TEXT_LEFT, y);
+                grfx.FillRectangle(brushBackgrSel[drawIdx], TEXT_LEFT, CurrentSignals[i].TextRect.Y, CurrentSignals[i].TextRect.Width, CurrentSignals[i].TextRect.Height);
+                grfx.DrawString(s, NameFont, brushTextSel[drawIdx], TEXT_LEFT, y);
             }
             else
             {
                 if (Clear)
-                    grfx.FillRectangle(Brushes.Black, TEXT_LEFT, CurrentSignals[i].TextRect.Y, CurrentSignals[i].TextRect.Width, CurrentSignals[i].TextRect.Height);
+                    grfx.FillRectangle(brushBackgr[drawIdx], TEXT_LEFT, CurrentSignals[i].TextRect.Y, CurrentSignals[i].TextRect.Width, CurrentSignals[i].TextRect.Height);
 
-                grfx.DrawString(s, NameFont, Brushes.White, TEXT_LEFT, y);
+                grfx.DrawString(s, NameFont, brushText[drawIdx], TEXT_LEFT, y);
             }
 
             y += VERTICAL_STEP;
@@ -1196,15 +1275,15 @@ namespace DigiSim
                     CurrentSignals[i].DisplayPins[j].TextRect = new Rectangle(MARGIN_LEFT, y, (int)size.Width + TEXT_INDENT_LEFT - MARGIN_LEFT, (int)size.Height);
                     if (CurrentSignals[i].DisplayPins[j].SelOrHigh == true)
                     {
-                        grfx.FillRectangle(Brushes.White, TEXT_LEFT, CurrentSignals[i].DisplayPins[j].TextRect.Y, CurrentSignals[i].DisplayPins[j].TextRect.Width, CurrentSignals[i].DisplayPins[j].TextRect.Height);
-                        grfx.DrawString(s, NameFont, Brushes.Black, TEXT_INDENT_LEFT, y);
+                        grfx.FillRectangle(brushBackgrSel[drawIdx], TEXT_LEFT, CurrentSignals[i].DisplayPins[j].TextRect.Y, CurrentSignals[i].DisplayPins[j].TextRect.Width, CurrentSignals[i].DisplayPins[j].TextRect.Height);
+                        grfx.DrawString(s, NameFont, brushTextSel[drawIdx], TEXT_INDENT_LEFT, y);
                     }
                     else
                     {
                         if (Clear)
-                            grfx.FillRectangle(Brushes.Black, TEXT_LEFT, CurrentSignals[i].DisplayPins[j].TextRect.Y, CurrentSignals[i].DisplayPins[j].TextRect.Width, CurrentSignals[i].DisplayPins[j].TextRect.Height);
+                            grfx.FillRectangle(brushBackgr[drawIdx], TEXT_LEFT, CurrentSignals[i].DisplayPins[j].TextRect.Y, CurrentSignals[i].DisplayPins[j].TextRect.Width, CurrentSignals[i].DisplayPins[j].TextRect.Height);
 
-                        grfx.DrawString(s, NameFont, Brushes.White, TEXT_INDENT_LEFT, y);
+                        grfx.DrawString(s, NameFont, brushText[drawIdx], TEXT_INDENT_LEFT, y);
                     }
                     y += VERTICAL_STEP;
                 }
@@ -1497,26 +1576,36 @@ namespace DigiSim
         }
 
         /// <summary>
-        /// Draw all signal value strings to the bmSignalValues bitmap.
+        /// Draw all signal value strings to the bmValues bitmap.
         /// </summary>
+        /// <param name="bmValues">Reference to the Bitmap to draw to.</param>
+        /// <param name="pbValues">Reference to the PictureBox object where bmValues is assigned.</param>
         /// <param name="Time">Time value to check the state of the signals.</param>
-        private void DisplaySignalValues(double Time)
+        /// <returns>Used width</returns>
+        private int DisplaySignalValues(ref Bitmap bmValues, PictureBox pbValues, double Time)
         {
+            int usedWidth = 0;
             int h = GetBitmapHeight(ExpandAll);
-            if ((bmSignalValues == null) || (h != bmSignalValues.Height))
+            if ((bmValues == null) || (h != bmValues.Height))
             {
-                bmSignalValues = new Bitmap(pbSignalValues.ClientSize.Width, h);
-                pbSignalValues.Image = bmSignalValues;
+                bmValues = new Bitmap(pbSignalValues.ClientSize.Width, h);
+                if (pbValues != null)
+                    pbValues.Image = bmValues;
             }
-            Graphics.FromImage(bmSignalValues).Clear(Color.Black);
+            //Graphics.FromImage(bmValues).Clear(colorBackgr[drawIdx]);
+
             int y = TEXT_TOP;
-            Graphics grfx = Graphics.FromImage(bmSignalValues);
-            grfx.Clear(Color.Black);
+            Graphics grfx = Graphics.FromImage(bmValues);
+            grfx.Clear(colorBackgr[drawIdx]);
             for (int i = 0; i < CurrentSignals.Count; i++)
             {
-                y = DisplaySignalValue(Time, grfx, i);
+                y = DisplaySignalValue(bmValues, grfx, Time, i, ref usedWidth);
             }
-            pbSignalValues.Refresh();
+
+            if (pbValues != null)
+                pbValues.Refresh();
+
+            return usedWidth;
         }
 
         /// <summary>
@@ -1526,21 +1615,24 @@ namespace DigiSim
         /// <param name="grfx">Reference to the graphics object to draw to.</param>
         /// <param name="i">Index of the signal in the CurrentSignal list.</param>
         /// <returns>Return the y-coordinate for the next signal to be drawn.</returns>
-        private int DisplaySignalValue(double Time, Graphics grfx, int i)
+        private int DisplaySignalValue(Bitmap bmValues, Graphics grfx, double Time, int i, ref int UsedWidth)
         {
-            return DisplaySignalValue(Time, grfx, i, false);
+            return DisplaySignalValue(bmValues, grfx, Time, i, ref UsedWidth, false);
         }
 
         /// <summary>
-        /// Draw a signal value string of the indexed signal of the requested time to the bmSignalValues bitmap.
+        /// Draw a signal value string of the indexed signal of the requested time to the bmValues bitmap.
         /// </summary>
+        /// <param name="bmValues">Reference to the Bitmap to draw to.</param>
+        /// <param name="pbValues">Reference to the PictureBox object where bmNames is assigned.</param>
         /// <param name="Time">Time value of the signal state to check</param>
         /// <param name="i">Index of the signal in the CurrentSignal list.</param>
         /// <returns>Return the y-coordinate for the next signal to be drawn.</returns>
-        private int DisplaySignalValue(double Time, int i)
+        private int DisplaySignalValue(Bitmap bmValues, PictureBox pbValues, double Time, int i, ref int UsedWidth)
         {
-            int y = DisplaySignalValue(Time, Graphics.FromImage(bmSignalValues), i, true);
-            pbSignalValues.Invalidate();
+            int y = DisplaySignalValue(bmValues, Graphics.FromImage(bmValues), Time, i, ref UsedWidth, true);
+            if (pbValues != null)
+                pbValues.Invalidate();
             return y;
         }
 
@@ -1552,21 +1644,24 @@ namespace DigiSim
         /// <param name="i">Index of the signal in the CurrentSignal list.</param>
         /// <param name="Clear">If true, the background area for this signal will be cleared before drawing.</param>
         /// <returns>Return the y-coordinate for the next signal to be drawn.</returns>
-        private int DisplaySignalValue(double Time, Graphics grfx, int i, bool Clear)
+        private int DisplaySignalValue(Bitmap bmValues, Graphics grfx, double Time, int i, ref int UsedWidth, bool Clear)
         {
             int y = CurrentSignals[i].TextRect.Y;
+            string s = GetValueStr(CurrentSignals[i], Time, true);
+            SizeF size = grfx.MeasureString(s, ValueFont);
+            UsedWidth = Math.Max(UsedWidth, MARGIN_LEFT+(int)size.Width+ MARGIN_RIGHT);
 
             if (CurrentSignals[i].SelOrHigh == true)
             {
-                grfx.FillRectangle(Brushes.White, 0, CurrentSignals[i].TextRect.Y, bmSignalValues.Width - 1, CurrentSignals[i].TextRect.Height);
-                grfx.DrawString(GetValueStr(CurrentSignals[i], Time, true), ValueFont, Brushes.Black, MARGIN_LEFT, y);
+                grfx.FillRectangle(brushBackgrSel[drawIdx], 0, CurrentSignals[i].TextRect.Y, bmValues.Width - 1, CurrentSignals[i].TextRect.Height);
+                grfx.DrawString(s, ValueFont, brushTextSel[drawIdx], MARGIN_LEFT, y);
             }
             else
             {
                 if (Clear)
-                    grfx.FillRectangle(Brushes.Black, 0, CurrentSignals[i].TextRect.Y, bmSignalValues.Width - 1, CurrentSignals[i].TextRect.Height);
+                    grfx.FillRectangle(brushBackgr[drawIdx], 0, CurrentSignals[i].TextRect.Y, bmValues.Width - 1, CurrentSignals[i].TextRect.Height);
 
-                grfx.DrawString(GetValueStr(CurrentSignals[i], Time, true), ValueFont, Brushes.White, MARGIN_LEFT, y);
+                grfx.DrawString(s, ValueFont, brushText[drawIdx], MARGIN_LEFT, y);
             }
 
             y += VERTICAL_STEP;
@@ -1575,17 +1670,20 @@ namespace DigiSim
             {
                 for (int j = 0; j < CurrentSignals[i].DisplayPins.Length; j++)
                 {
+                    string ss = GetValueStr(CurrentSignals[i].DisplayPins[j].Pin.History.FindState(Time), CurrentSignals[i].Invert);
+                    SizeF sizeF = grfx.MeasureString(s, ValueFont);
+                    UsedWidth = Math.Max(UsedWidth, MARGIN_LEFT + (int)sizeF.Width + MARGIN_RIGHT);
                     if (CurrentSignals[i].DisplayPins[j].SelOrHigh == true)
                     {
-                        grfx.FillRectangle(Brushes.White, 0, CurrentSignals[i].DisplayPins[j].TextRect.Y, bmSignalValues.Width - 1, CurrentSignals[i].TextRect.Height);
-                        grfx.DrawString(GetValueStr(CurrentSignals[i].DisplayPins[j].Pin.History.FindState(Time), CurrentSignals[i].Invert), ValueFont, Brushes.Black, VALUE_INDENT_LEFT, y);
+                        grfx.FillRectangle(brushBackgrSel[drawIdx], 0, CurrentSignals[i].DisplayPins[j].TextRect.Y, bmValues.Width - 1, CurrentSignals[i].TextRect.Height);
+                        grfx.DrawString(ss, ValueFont, brushTextSel[drawIdx], VALUE_INDENT_LEFT, y);
                     }
                     else
                     {
                         if (Clear)
-                            grfx.FillRectangle(Brushes.White, 0, CurrentSignals[i].DisplayPins[j].TextRect.Y, bmSignalValues.Width - 1, CurrentSignals[i].TextRect.Height);
+                            grfx.FillRectangle(brushBackgr[drawIdx], 0, CurrentSignals[i].DisplayPins[j].TextRect.Y, bmValues.Width - 1, CurrentSignals[i].TextRect.Height);
 
-                        grfx.DrawString(GetValueStr(CurrentSignals[i].DisplayPins[j].Pin.History.FindState(Time), CurrentSignals[i].Invert), ValueFont, Brushes.White, VALUE_INDENT_LEFT, y);
+                        grfx.DrawString(ss, ValueFont, brushText[drawIdx], VALUE_INDENT_LEFT, y);
                     }
 
                     y += VERTICAL_STEP;
@@ -1655,7 +1753,7 @@ namespace DigiSim
             {
                 Graphics grfx = e.Graphics;
                 Pen pen = new Pen(Color.FromArgb(63, 255, 255, 255), 1);
-                grfx.DrawLine(pen, 0, MouseY, pbSignalGraphs.ClientSize.Width - 1, MouseY);
+                grfx.DrawLine(pen, 0, MouseY, pbSignalValues.ClientSize.Width - 1, MouseY);
             }
         }
 
@@ -1699,24 +1797,24 @@ namespace DigiSim
             if (s.Contains("U"))
             {
                 if ((p0.Y != y) && (x > p0.X + 1))
-                    grfx.FillRectangle((Signal.SelOrHigh ? brushSignalUsel: brushSignalUstd), p0.X + 1, p0.Y, x - p0.X, y - p0.Y);
+                    grfx.FillRectangle((Signal.SelOrHigh ? brushSignalUsel[drawIdx] : brushSignalUstd[drawIdx]), p0.X + 1, p0.Y, x - p0.X, y - p0.Y);
 
-                grfx.DrawLine((Signal.SelOrHigh ? penSignalUsel: penSignalUstd), p0, p1);
-                grfx.DrawLine((Signal.SelOrHigh ? penSignalHLsel : penSignalHLstd), p1, p2);
+                grfx.DrawLine((Signal.SelOrHigh ? penSignalUsel[drawIdx] : penSignalUstd[drawIdx]), p0, p1);
+                grfx.DrawLine((Signal.SelOrHigh ? penSignalHLsel[drawIdx] : penSignalHLstd[drawIdx]), p1, p2);
             }
             else if (s.Contains("Z"))
             {
                 if ((p0.Y != y) && (x > p0.X + 1))
-                    grfx.FillRectangle((Signal.SelOrHigh ? brushSignalZsel : brushSignalZstd), p0.X + 1, p0.Y, x - p0.X, y - p0.Y);
+                    grfx.FillRectangle((Signal.SelOrHigh ? brushSignalZsel[drawIdx] : brushSignalZstd[drawIdx]), p0.X + 1, p0.Y, x - p0.X, y - p0.Y);
 
-                grfx.DrawLine((Signal.SelOrHigh ? penSignalZsel : penSignalZstd), p0, p1);
-                grfx.DrawLine((Signal.SelOrHigh ? penSignalHLsel : penSignalHLstd), p1, p2);
+                grfx.DrawLine((Signal.SelOrHigh ? penSignalZsel[drawIdx] : penSignalZstd[drawIdx]), p0, p1);
+                grfx.DrawLine((Signal.SelOrHigh ? penSignalHLsel[drawIdx] : penSignalHLstd[drawIdx]), p1, p2);
             }
             else
             {
                 if ((p0.Y != y) && (x > p0.X + 1))
-                    grfx.FillRectangle((Signal.SelOrHigh ? brushSignalHLsel: brushSignalHLstd), p0.X + 1, p0.Y, x - p0.X, y - p0.Y);
-                grfx.DrawLines((Signal.SelOrHigh ? penSignalHLsel: penSignalHLstd), new PointF[] { p0, p1, p2 });
+                    grfx.FillRectangle((Signal.SelOrHigh ? brushSignalHLsel[drawIdx] : brushSignalHLstd[drawIdx]), p0.X + 1, p0.Y, x - p0.X, y - p0.Y);
+                grfx.DrawLines((Signal.SelOrHigh ? penSignalHLsel[drawIdx] : penSignalHLstd[drawIdx]), new PointF[] { p0, p1, p2 });
             }
 
             p0 = p2;
@@ -1749,16 +1847,16 @@ namespace DigiSim
                 poly[6] = poly[0];
 
                 if (ss.Contains("U"))
-                    grfx.DrawPolygon((Signal.SelOrHigh ? penSignalUsel : penSignalUstd), poly);
+                    grfx.DrawPolygon((Signal.SelOrHigh ? penSignalUsel[drawIdx] : penSignalUstd[drawIdx]), poly);
                 else if (ss.Contains("Z"))
-                    grfx.DrawPolygon((Signal.SelOrHigh ? penSignalZsel : penSignalZstd), poly);
+                    grfx.DrawPolygon((Signal.SelOrHigh ? penSignalZsel[drawIdx] : penSignalZstd[drawIdx]), poly);
                 else
                 {
                     if (Signal.SelOrHigh)
-                        grfx.FillPolygon(brushSignalHLsel, poly);
+                        grfx.FillPolygon(brushSignalHLsel[drawIdx], poly);
 
                     //grfx.FillPolygon((Signal.SelOrHigh ? brushSignalHLsel : brushSignalHLstd), poly);
-                    grfx.DrawPolygon((Signal.SelOrHigh ? penSignalHLsel : penSignalHLstd), poly);
+                    grfx.DrawPolygon((Signal.SelOrHigh ? penSignalHLsel[drawIdx] : penSignalHLstd[drawIdx]), poly);
                 }
 
                 float dx = xx - x;
@@ -1768,7 +1866,7 @@ namespace DigiSim
                     SizeF size = grfx.MeasureString(s + "X", SignalFont);
                     if (dx > size.Width)
                     {
-                        grfx.DrawString(s, Signal.SelOrHigh ? SignalFontHL : SignalFont, Brushes.White, xm, y - SIGNAL_HEIGHT + (Signal.SelOrHigh?0.45f:1), StringFormatCenter);
+                        grfx.DrawString(s, Signal.SelOrHigh ? SignalFontHL : SignalFont, brushGraphText[drawIdx], xm, y - SIGNAL_HEIGHT + (Signal.SelOrHigh?0.45f:1), StringFormatCenter);
                     }
                 }
 
@@ -1776,73 +1874,82 @@ namespace DigiSim
             }
             else
             {
-                grfx.FillRectangle((Signal.SelOrHigh ? brushSignalHLsel : brushSignalHLstd), x, y - SIGNAL_HEIGHT, BUS_MIN_DX, SIGNAL_HEIGHT);
+                grfx.FillRectangle((Signal.SelOrHigh ? brushSignalHLsel[drawIdx] : brushSignalHLstd[drawIdx]), x, y - SIGNAL_HEIGHT, BUS_MIN_DX, SIGNAL_HEIGHT);
             }
         }
 
         /// <summary>
-        /// Display all signal graphs by drawing to the bmSignalGraphs bitmap.
+        /// Display all signal graphs by drawing to the bmGraphs bitmap.
+        /// <param name="bmGraphs">Reference to the Bitmap to draw to.</param>
+        /// <param name="pbGraphs">Reference to the PictureBox object where bmGraphs is assigned.</param>
         /// </summary>
-        private void DisplaySignalGraphs()
+        private void DisplaySignalGraphs(ref Bitmap bmGraphs, PictureBox pbGraphs)
         {
             SuspendLayout();
             int w = GetBitmapWidth();
             int h = GetBitmapHeight(ExpandAll);
-            if ((bmSignalGraphs == null) || (bmSignalGraphs.Width != w) || (bmSignalGraphs.Height != h))
+            if ((bmGraphs == null) || (bmGraphs.Width != w) || (bmGraphs.Height != h))
             {
-                bmSignalGraphs = new Bitmap(w, h);
-                pbSignalGraphs.Image = bmSignalGraphs;
+                bmGraphs = new Bitmap(w, h);
+                if (pbGraphs != null) 
+                    pbGraphs.Image = bmGraphs;
             }
 
             float x = MARGIN_LEFT;
             float y = MARGIN_TOP + VERTICAL_STEP;
-            Graphics grfx = Graphics.FromImage(bmSignalGraphs);
-            grfx.Clear(Color.Black);
+            Graphics grfx = Graphics.FromImage(bmGraphs);
+            grfx.Clear(colorBackgr[drawIdx]);
             for (int i = 0; i < CurrentSignals.Count; i++)
             {
                 CurrentSignals[i].SignalY = y;
-                y = DisplaySignalGraph(grfx, i);
+                y = DisplaySignalGraph(bmGraphs, grfx, i);
             }
             ResumeLayout();
-            pbSignalGraphs.Refresh();
+            if (pbGraphs != null)
+                pbGraphs.Refresh();
         }
 
         /// <summary>
         /// Draw one signal or signal group addressed via the index into the CurrentSignals list to the graphics object.
         /// </summary>
+        /// <param name="bmGraphs">Reference to the Bitmap to draw to.</param>
         /// <param name="grfx">Reference to the graphics object to draw the signal graph to.</param>
         /// <param name="i">Index of the signal or signal group in the CurrentSignals list.</param>
         /// <returns>Y-coordinate of the base line of the next signal.</returns>
-        private float DisplaySignalGraph(Graphics grfx, int i)
+        private float DisplaySignalGraph(Bitmap bmGraphs, Graphics grfx, int i)
         {
-            return DisplaySignalGraph(grfx, i, false);
+            return DisplaySignalGraph(bmGraphs, grfx, i, false);
         }
 
         /// <summary>
-        /// Draw one signal or signal group addressed via the index into the CurrentSignals list to the bmSignalGraphs bitmap.
+        /// Draw one signal or signal group addressed via the index into the CurrentSignals list to the bmGraphs bitmap.
         /// </summary>
+        /// <param name="bmGraphs">Reference to the Bitmap to draw to.</param>
+        /// <param name="pbGraphs">Reference to the PictureBox object where bmGraphs is assigned.</param>
         /// <param name="i">Index of the signal or signal group in the CurrentSignals list.</param>
         /// <returns>Y-coordinate of the base line of the next signal.</returns>
-        private float DisplaySignalGraph(int i)
+        private float DisplaySignalGraph(Bitmap bmGraphs, PictureBox pbGraphs, int i)
         {
-            float y = DisplaySignalGraph(Graphics.FromImage(bmSignalGraphs), i, true);
-            pbSignalGraphs.Invalidate();
+            float y = DisplaySignalGraph(bmGraphs, Graphics.FromImage(bmGraphs), i, true);
+            if (pbGraphs != null)
+                pbGraphs.Invalidate();
             return y;
         }
 
         /// <summary>
         /// Draw one signal or signal group addressed via the index into the CurrentSignals list to the graphics object.
         /// </summary>
+        /// <param name="bmGraphs">Reference to the Bitmap to draw to.</param>
         /// <param name="grfx">Reference to the graphics object to draw the signal graph to.</param>
         /// <param name="i">Index of the signal or signal group in the CurrentSignals list.</param>
         /// <param name="Clear">If true, the background area will be cleared before drawing.</param>
         /// <returns>Y-coordinate of the base line of the next signal.</returns>
-        private float DisplaySignalGraph(Graphics grfx, int i, bool Clear)
+        private float DisplaySignalGraph(Bitmap bmGraphs, Graphics grfx, int i, bool Clear)
         {
             float y = CurrentSignals[i].SignalY;
             float x = MARGIN_LEFT;
             if (Clear)
-                grfx.FillRectangle(Brushes.Black, 0, y - SIGNAL_HEIGHT-1, pbSignalGraphs.Width - 1, SIGNAL_HEIGHT+2);
+                grfx.FillRectangle(brushBackgr[drawIdx], 0, y - SIGNAL_HEIGHT-1, bmGraphs.Width - 1, SIGNAL_HEIGHT+2);
             
             float sigy = y;
             PointF p0 = new PointF(x, y);
@@ -1898,7 +2005,7 @@ namespace DigiSim
                         CurrentSignals[i].DisplayPins[j].SignalY = sigy;
 
                         if (Clear)
-                            grfx.FillRectangle(Brushes.Blue, 0, y, pbSignalGraphs.Width - 1, -VERTICAL_STEP);
+                            grfx.FillRectangle(brushBackgr[drawIdx], 0, y, bmGraphs.Width - 1, -VERTICAL_STEP);
 
                         int minIdx = CurrentSignals[i].DisplayPins[j].Pin.History.FindIndex(DisplayMinTime);
                         int maxIdx = CurrentSignals[i].DisplayPins[j].Pin.History.FindIndex(DisplayMaxTime);
@@ -1950,7 +2057,7 @@ namespace DigiSim
                 pbSignalGraphRuler.Refresh();
                 if (DataTime != LastDataTime)
                 {
-                    DisplaySignalValues(DataTime);
+                    DisplaySignalValues(ref bmSignalValues, pbSignalValues, DataTime);
                     LastDataTime = DataTime;
                 }
                 pbSignalValues.Refresh();
@@ -1972,7 +2079,7 @@ namespace DigiSim
                 pbSignalGraphRuler.Refresh();
                 if (DataTime != LastDataTime)
                 {
-                    DisplaySignalValues(DataTime);
+                    DisplaySignalValues(ref bmSignalValues, pbSignalValues, DataTime);
                     LastDataTime = DataTime;
                 }
                 pbSignalNames.Refresh();
@@ -2001,7 +2108,7 @@ namespace DigiSim
             pbSignalGraphRuler.Refresh();
             pbSignalNames.Refresh();
             if (CursorMarker.X >= 0)
-                DisplaySignalValues(CursorMarker.Time);
+                DisplaySignalValues(ref bmSignalValues, pbSignalValues, CursorMarker.Time);
             else
                 pbSignalValues.Refresh();
 
@@ -2045,7 +2152,7 @@ namespace DigiSim
                     CursorMarker.Moving = true;
                     CursorMarker.Selected = true;
                     CursorMarker.Time = X2Time(X);
-                    DisplaySignalValues(CursorMarker.Time);
+                    DisplaySignalValues(ref bmSignalValues, pbSignalValues, CursorMarker.Time);
                     SetSelectedSignal(Y, true);
                 }
             }
@@ -2080,6 +2187,39 @@ namespace DigiSim
         }
 
         /// <summary>
+        /// Draw all markers to the graphics object.
+        /// </summary>
+        /// <param name="grfx">Graphics object to draw to</param>
+        private void DrawSignalGraphMarkers(Graphics grfx)
+        {
+            if (Markers.Count > 0)
+            {
+                for (int i = 0; i < Markers.Count; i++)
+                {
+                    Pen pen = Markers[i].Selected == true ? penMarkerSel[drawIdx] : penMarker[drawIdx];
+                    grfx.DrawLine(pen, Markers[i].X, 0, Markers[i].X, pbSignalGraphs.ClientSize.Height - 1);
+                }
+            }
+
+            if (CursorMarker.X >= 0)
+            {
+                Pen pen = CursorMarker.Selected == true ? penCursorSel[drawIdx] : penCursor[drawIdx];
+                grfx.DrawLine(pen, CursorMarker.X, 0, CursorMarker.X, pbSignalGraphs.ClientSize.Height - 1);
+            }
+            else if (MouseX >= 0)
+            {
+                Pen pen = new Pen(Color.FromArgb(63, 255, 255, 255), 1);
+                grfx.DrawLine(pen, MouseX, 0, MouseX, pbSignalGraphs.ClientSize.Height - 1);
+                grfx.DrawLine(pen, 0, MouseY, pbSignalGraphs.ClientSize.Width - 1, MouseY);
+            }
+
+            if (TriggerMarker.X >= 0)
+            {
+                grfx.DrawLine(penTrigger[drawIdx], TriggerMarker.X, 0, TriggerMarker.X, pbSignalGraphs.ClientSize.Height - 1);
+            }
+        }
+
+        /// <summary>
         /// Paint event handler for the signal graph picture box.
         /// This handler draws markers on top of the signal graph picture box.
         /// </summary>
@@ -2087,31 +2227,7 @@ namespace DigiSim
         /// <param name="e">Event argument passed with the call.</param>
         private void pbSignalGraphs_Paint(object sender, PaintEventArgs e)
         {
-            if (Markers.Count > 0)
-            {
-                for (int i = 0; i < Markers.Count; i++)
-                {
-                    Pen pen = Markers[i].Selected == true ? Pens.White : Pens.Blue;
-                    e.Graphics.DrawLine(pen, Markers[i].X, 0, Markers[i].X, pbSignalGraphs.ClientSize.Height - 1);
-                }
-            }
-
-            if (CursorMarker.X >= 0)
-            {
-                Pen pen = CursorMarker.Selected == true ? Pens.White : Pens.Yellow;
-                e.Graphics.DrawLine(pen, CursorMarker.X, 0, CursorMarker.X, pbSignalGraphs.ClientSize.Height - 1);
-            }
-            else if (MouseX >= 0)
-            {
-                Pen pen = new Pen(Color.FromArgb(63, 255, 255, 255), 1);
-                e.Graphics.DrawLine(pen, MouseX, 0, MouseX, pbSignalGraphs.ClientSize.Height - 1);
-                e.Graphics.DrawLine(pen, 0, MouseY, pbSignalGraphs.ClientSize.Width - 1, MouseY);
-            }
-
-            if (TriggerMarker.X >= 0)
-            {
-                e.Graphics.DrawLine(Pens.Red, TriggerMarker.X, 0, TriggerMarker.X, pbSignalGraphs.ClientSize.Height - 1);
-            }
+            DrawSignalGraphMarkers(e.Graphics);
         }
 
         /// <summary>
@@ -2149,25 +2265,91 @@ namespace DigiSim
 
         #region Display Signal Graph Ruler
         /// <summary>
-        /// Displays a basic ruler on the bmSignalGraphRuler bitmap.
+        /// Displays a basic ruler on the bmGraphRuler bitmap.
+        /// <param name="bmGraphRuler">Reference to the Bitmap to draw to.</param>
+        /// <param name="pbGraphRuler">Reference to the PictureBox object where bmGraphRuler is assigned.</param>
         /// </summary>
-        private void DisplaySignalGraphRuler()
+        private void DisplaySignalGraphRuler(ref Bitmap bmGraphRuler, PictureBox pbGraphRuler)
         {
             int w = GetBitmapWidth();
-            if ((bmSignalGraphRuler == null) || (bmSignalGraphRuler.Width != w))
+            if ((bmGraphRuler == null) || (bmGraphRuler.Width != w))
             {
-                bmSignalGraphRuler = new Bitmap(w, pbSignalGraphRuler.ClientSize.Height);
-                pbSignalGraphRuler.Image = bmSignalGraphRuler;
+                bmGraphRuler = new Bitmap(w, pbSignalGraphRuler.ClientSize.Height);
+                if (pbGraphRuler != null)
+                    pbGraphRuler.Image = bmGraphRuler;
             }
-            Graphics grfx = Graphics.FromImage(bmSignalGraphRuler);
-            grfx.Clear(Color.Black);
+            Graphics grfx = Graphics.FromImage(bmGraphRuler);
+            grfx.Clear(colorBackgr[drawIdx]);
 
-            int y = bmSignalGraphRuler.Height - 1;
-            grfx.DrawLine(new Pen(Color.White, 3), 0, y, bmSignalGraphRuler.Width - 1, y);
+            int y = bmGraphRuler.Height - 1;
+            grfx.DrawLine(new Pen(Color.White, 3), 0, y, bmGraphRuler.Width - 1, y);
+
+            if (pbGraphRuler != null)
+                pbGraphRuler.Invalidate();
         }
         #endregion Display Signal Graph Ruler
 
         #region Signal Graph Ruler Handlers
+
+
+        /// <summary>
+        /// Draw all markers to the graphics object.
+        /// </summary>
+        /// <param name="grfx">Graphics object to draw to</param>
+        private void DrawSignalGraphRulerMarkers(Graphics grfx)
+        {
+            if (Markers.Count > 0)
+            {
+                for (int i = 0; i < Markers.Count; i++)
+                {
+                    Pen penLine = Markers[i].Selected == true ? penMarkerSel[drawIdx] : penMarker[drawIdx];
+                    Brush brFill = Markers[i].Selected == true ? brushMarkerFillSel[drawIdx] : brushMarkerFill[drawIdx];
+                    Brush brText = Markers[i].Selected == true ? brushMarkerTextSel[drawIdx] : brushMarkerText[drawIdx];
+
+                    grfx.DrawLine(penLine, Markers[i].X, 17, Markers[i].X, pbSignalGraphRuler.ClientSize.Height - 1);
+                    Point p0 = new Point(Markers[i].X, 17 - pbSignalGraphRuler.Location.Y);
+                    string s = Time2Str(Markers[i].Time);
+                    SizeF size = grfx.MeasureString(s, SignalFont);
+                    grfx.FillRectangle(brFill, p0.X, p0.Y, size.Width, size.Height);
+                    grfx.DrawRectangle(penMarkerRect[drawIdx], p0.X, p0.Y, size.Width, size.Height);
+                    grfx.DrawString(s, SignalFont, brText, p0, StringFormatNear);
+                }
+            }
+
+            if (CursorMarker.X >= 0)
+            {
+                Pen penLine = CursorMarker.Selected == true ? penCursorSel[drawIdx] : penCursor[drawIdx];
+                Brush brFill = CursorMarker.Selected == true ? brushCursorFillSel[drawIdx] : brushCursorFill[drawIdx];
+                Brush brText = CursorMarker.Selected == true ? brushCursorTextSel[drawIdx] : brushCursorText[drawIdx];
+
+                grfx.DrawLine(penLine, CursorMarker.X, 2, CursorMarker.X, pbSignalGraphRuler.ClientSize.Height - 1);
+                Point p0 = new Point(CursorMarker.X, 2);
+                string s = Time2Str(CursorMarker.Time);
+                SizeF size = grfx.MeasureString(s, SignalFont);
+                grfx.FillRectangle(brFill, p0.X, p0.Y, size.Width, size.Height);
+                grfx.DrawRectangle(penMarkerRect[drawIdx], p0.X, p0.Y, size.Width, size.Height);
+                grfx.DrawString(s, SignalFont, brText, p0, StringFormatNear);
+            }
+            else if (MouseX >= 0) 
+            {
+                Pen pen = new Pen(Color.FromArgb(63, 255, 255, 255), 1);
+                grfx.DrawLine(pen, MouseX, 0, MouseX, pbSignalGraphRuler.ClientSize.Height - 1);
+                grfx.DrawString(Time2Str(DataTime), SignalFont, Brushes.White, new Point(MouseX, 1 - pbSignalGraphRuler.Location.Y), StringFormatNear);
+            }
+
+            if (TriggerMarker.X >= 0)
+            {
+                grfx.DrawLine(penTrigger[drawIdx], TriggerMarker.X, 32, TriggerMarker.X, pbSignalGraphRuler.ClientSize.Height - 1);
+                Point p0 = new Point(TriggerMarker.X, 32 - pbSignalGraphRuler.Location.Y);
+                string s = Time2Str(Schematics.TriggerTime);
+                SizeF size = grfx.MeasureString(s, SignalFont);
+                grfx.FillRectangle(brushTriggerFill[drawIdx], p0.X, p0.Y, size.Width, size.Height);
+                grfx.DrawRectangle(penMarkerRect[drawIdx], p0.X, p0.Y, size.Width, size.Height);
+                grfx.DrawString(s, SignalFont, brushTriggerText[drawIdx], p0, StringFormatNear);
+            }
+
+        }
+
         /// <summary>
         /// Paint event handler for the signal graph ruler picture box.
         /// This handler draws markers on top of the signal graph ruler picture box.
@@ -2176,60 +2358,7 @@ namespace DigiSim
         /// <param name="e">Event argument passed with the call.</param>
         private void pbSignalGraphRuler_Paint(object sender, PaintEventArgs e)
         {
-            if (Markers.Count > 0)
-            {
-                Graphics grfx = e.Graphics;
-
-                for (int i = 0; i < Markers.Count; i++)
-                {
-                    Pen penLine = Markers[i].Selected == true ? Pens.White : Pens.Blue;
-                    Brush brushFill = Markers[i].Selected == true ? Brushes.White : Brushes.Blue;
-                    Brush brushText = Markers[i].Selected == true ? Brushes.Black : Brushes.White;
-
-                    grfx.DrawLine(penLine, Markers[i].X, 17, Markers[i].X, pbSignalGraphRuler.ClientSize.Height - 1);
-                    Point p0 = new Point(Markers[i].X, 17 - pbSignalGraphRuler.Location.Y);
-                    string s = Time2Str(Markers[i].Time);
-                    SizeF size = grfx.MeasureString(s, SignalFont);
-                    grfx.FillRectangle(brushFill, p0.X, p0.Y, size.Width, size.Height);
-                    grfx.DrawRectangle(Pens.White, p0.X, p0.Y, size.Width, size.Height);
-                    grfx.DrawString(s, SignalFont, brushText, p0, StringFormatNear);
-                }
-            }
-
-            if (CursorMarker.X >= 0)
-            {
-                Graphics grfx = e.Graphics;
-                Pen penLine = CursorMarker.Selected == true ? Pens.White : Pens.Yellow;
-                Brush brushFill = CursorMarker.Selected == true ? Brushes.White : Brushes.Yellow;
-                Brush brushText = CursorMarker.Selected == true ? Brushes.Black : Brushes.Black;
-
-                grfx.DrawLine(penLine, CursorMarker.X, 2, CursorMarker.X, pbSignalGraphRuler.ClientSize.Height - 1);
-                Point p0 = new Point(CursorMarker.X, 2 );
-                string s = Time2Str(CursorMarker.Time);
-                SizeF size = grfx.MeasureString(s, SignalFont);
-                grfx.FillRectangle(brushFill, p0.X, p0.Y, size.Width, size.Height);
-                grfx.DrawRectangle(Pens.White, p0.X, p0.Y, size.Width, size.Height);
-                grfx.DrawString(s, SignalFont, brushText, p0, StringFormatNear);
-            }
-            else if (MouseX >= 0)
-            {
-                Graphics grfx = e.Graphics;
-                Pen pen = new Pen(Color.FromArgb(63, 255, 255, 255), 1);
-                grfx.DrawLine(pen, MouseX, 0, MouseX, pbSignalGraphRuler.ClientSize.Height - 1);
-                grfx.DrawString(Time2Str(DataTime), SignalFont, Brushes.White, new Point(MouseX, 1 - pbSignalGraphRuler.Location.Y), StringFormatNear);
-            }
-
-            if (TriggerMarker.X >= 0)
-            {
-                Graphics grfx = e.Graphics;
-                grfx.DrawLine(Pens.Red, TriggerMarker.X, 32, TriggerMarker.X, pbSignalGraphRuler.ClientSize.Height - 1);
-                Point p0 = new Point(TriggerMarker.X, 32 - pbSignalGraphRuler.Location.Y);
-                string s = Time2Str(Schematics.TriggerTime);
-                SizeF size = grfx.MeasureString(s, SignalFont);
-                grfx.FillRectangle(Brushes.Red, p0.X, p0.Y, size.Width, size.Height);
-                grfx.DrawRectangle(Pens.White, p0.X, p0.Y, size.Width, size.Height);
-                grfx.DrawString(s, SignalFont, Brushes.White, p0, StringFormatNear);
-            }
+            DrawSignalGraphRulerMarkers(e.Graphics);
         }
         #endregion Signal Graph Ruler Handlers
 
@@ -2244,9 +2373,9 @@ namespace DigiSim
         private void tsmiBinary_Click(object sender, EventArgs e)
         {
             try { ((DisplaySignal)LastSelectedSignal).Radix = RadixType.Binary; } catch { }
-            DisplaySignalValues(CursorMarker.Time);
+            DisplaySignalValues(ref bmSignalValues, pbSignalValues, CursorMarker.Time);
             if ((LastSelectedSignal != null) && (LastSelectedSignal is DisplaySignal) && ((LastSelectedSignal as DisplaySignal).DisplayPins.Length > 1) && (LastSelectedSignalIdx >= 0))
-                DisplaySignalGraph(LastSelectedSignalIdx);
+                DisplaySignalGraph(bmSignalGraphs,pbSignalGraphs, LastSelectedSignalIdx);
         }
 
         /// <summary>
@@ -2258,9 +2387,9 @@ namespace DigiSim
         private void tsmiDecimal_Click(object sender, EventArgs e)
         {
             try { ((DisplaySignal)LastSelectedSignal).Radix = RadixType.Decimal; } catch { }
-            DisplaySignalValues(CursorMarker.Time);
+            DisplaySignalValues(ref bmSignalValues, pbSignalValues, CursorMarker.Time);
             if ((LastSelectedSignal != null) && (LastSelectedSignal is DisplaySignal) && ((LastSelectedSignal as DisplaySignal).DisplayPins.Length > 1) && (LastSelectedSignalIdx >= 0))
-                DisplaySignalGraph(LastSelectedSignalIdx);
+                DisplaySignalGraph(bmSignalGraphs, pbSignalGraphs, LastSelectedSignalIdx);
         }
 
         /// <summary>
@@ -2272,9 +2401,9 @@ namespace DigiSim
         private void tsmiSignedDec_Click(object sender, EventArgs e)
         {
             try { ((DisplaySignal)LastSelectedSignal).Radix = RadixType.SignedDec; } catch { }
-            DisplaySignalValues(CursorMarker.Time);
+            DisplaySignalValues(ref bmSignalValues, pbSignalValues, CursorMarker.Time);
             if ((LastSelectedSignal != null) && (LastSelectedSignal is DisplaySignal) && ((LastSelectedSignal as DisplaySignal).DisplayPins.Length > 1) && (LastSelectedSignalIdx >= 0))
-                DisplaySignalGraph(LastSelectedSignalIdx);
+                DisplaySignalGraph(bmSignalGraphs, pbSignalGraphs, LastSelectedSignalIdx);
         }
 
         /// <summary>
@@ -2286,9 +2415,9 @@ namespace DigiSim
         private void tsmiHexadecimal_Click(object sender, EventArgs e)
         {
             try { ((DisplaySignal)LastSelectedSignal).Radix = RadixType.Hexadecimal; } catch { }
-            DisplaySignalValues(CursorMarker.Time);
+            DisplaySignalValues(ref bmSignalValues, pbSignalValues, CursorMarker.Time);
             if ((LastSelectedSignal != null) && (LastSelectedSignal is DisplaySignal) && ((LastSelectedSignal as DisplaySignal).DisplayPins.Length > 1) && (LastSelectedSignalIdx >= 0))
-                DisplaySignalGraph(LastSelectedSignalIdx);
+                DisplaySignalGraph(bmSignalGraphs, pbSignalGraphs, LastSelectedSignalIdx);
         }
 
 
@@ -2301,23 +2430,23 @@ namespace DigiSim
         private void tsmiInvert_Click(object sender, EventArgs e)
         {
             try { ((DisplaySignal)LastSelectedSignal).Invert = tsmiInvert.Checked; } catch { }
-            DisplaySignalValues(CursorMarker.Time);
+            DisplaySignalValues(ref bmSignalValues, pbSignalValues, CursorMarker.Time);
             if ((LastSelectedSignal != null) && (LastSelectedSignal is DisplaySignal) && ((LastSelectedSignal as DisplaySignal).DisplayPins.Length > 1) && (LastSelectedSignalIdx >= 0))
-                DisplaySignalGraph(LastSelectedSignalIdx);
+                DisplaySignalGraph(bmSignalGraphs, pbSignalGraphs, LastSelectedSignalIdx);
         }
 
         private void tsmiReverse_Click(object sender, EventArgs e)
         {
             try { ((DisplaySignal)LastSelectedSignal).Reverse = tsmiReverse.Checked; } catch { }
-            DisplaySignalValues(CursorMarker.Time);
+            DisplaySignalValues(ref bmSignalValues, pbSignalValues, CursorMarker.Time);
             if ((LastSelectedSignal != null) && (LastSelectedSignal is DisplaySignal) && ((LastSelectedSignal as DisplaySignal).DisplayPins.Length > 1) && (LastSelectedSignalIdx >= 0))
-                DisplaySignalGraph(LastSelectedSignalIdx);
+                DisplaySignalGraph(bmSignalGraphs, pbSignalGraphs, LastSelectedSignalIdx);
         }
 
         private void tsmiHighlight_Click(object sender, EventArgs e)
         {
             try { ((DisplaySignal)LastSelectedSignal).Highlight = tsmiHighlight.Checked; } catch { }
-            DisplaySignalValues(CursorMarker.Time);
+            DisplaySignalValues(ref bmSignalValues, pbSignalValues, CursorMarker.Time);
         }
 
         #endregion Signal Value Radix Event Handlers
@@ -2611,6 +2740,159 @@ namespace DigiSim
             new ExportConnections(this, Application.StartupPath + "\\Connections.csv");
         }
 
+
+        /// <summary>
+        /// ToolStripMenuItem "Print" click event handler to open the print dialog and print the street map to the selected printer.
+        /// </summary>
+        /// <param name="sender">Sender of the event.</param>
+        /// <param name="e">Event arguments.</param>
+        private void tsmiPrintSetup_Click(object sender, EventArgs e)
+        {
+            if (psPrintSetup.PrinterSettings == null)
+                psPrintSetup.PrinterSettings = new PrinterSettings();
+
+            psPrintSetup.PageSettings = (PageSettings)AppSettings.PrintPageSettings.Clone();
+
+            if (psPrintSetup.ShowDialog() == DialogResult.OK)
+            {
+                AppSettings.PrintPageSettings = (PageSettings)psPrintSetup.PageSettings.Clone();
+                AppSettings.SaveSettings();
+            }
+        }
+#if XXXX
+        /// <summary>
+        /// ToolStripMenuItem "Print" click event handler to open the print dialog and print the street map to the selected printer.
+        /// </summary>
+        /// <param name="sender">Sender of the event.</param>
+        /// <param name="e">Event arguments.</param>
+        private void tsmiPrint_Click(object sender, EventArgs e)
+        {
+            PrintStreetMap printMap = new PrintStreetMap(pdPrintStreepMap, StreetMap, AppSettings, sender == tsmiTestPrint);
+            pdPrintStreepMap.Document = printMap.PrintDocument;
+            pdPrintStreepMap.PrinterSettings.FromPage = 1;
+            pdPrintStreepMap.PrinterSettings.ToPage = printMap.TotalPages;
+
+            bool showPageLimits = tsmiShowPageLimits.Checked;
+            tsmiShowPageLimits.Checked = true;
+            this.Refresh();
+
+            if (pdPrintStreepMap.ShowDialog() == DialogResult.OK)
+            {
+                SetEnabled(false);
+                printMap.Print();
+                SetEnabled(true);
+            }
+            tsmiShowPageLimits.Checked = showPageLimits;
+        }
+#endif
+        /// <summary>
+        /// Creates a bitmap similar to the screen contents, but with printer specific colors.
+        /// </summary>
+        /// <param name="CurrentViewOnly">True, to only print what is currently on the screen. False, to print everything.</param>
+        /// <returns>Bitmap created for printing.</returns>
+        private Bitmap CreatePrintBitmap(bool CurrentViewOnly)
+        {
+            Bitmap bmPrint;
+            Bitmap bmNames = null, bmValues = null, bmGraphs = null, bmGraphRuler = null;
+            drawIdx = 1;
+            int wNames = DisplaySignalNames(ref bmNames, null);
+            int wValues = DisplaySignalValues(ref bmValues, null, CursorMarker.Time >= 0 ? CursorMarker.Time : DataTime);
+            DisplaySignalGraphs(ref bmGraphs, null);
+            DrawSignalGraphMarkers(Graphics.FromImage(bmGraphs));
+            DisplaySignalGraphRuler(ref bmGraphRuler, null);
+            MouseX = -1;
+            DrawSignalGraphRulerMarkers(Graphics.FromImage(bmGraphRuler));
+            drawIdx = 0;
+            wNames = Math.Min(wNames, pnSignalNames.ClientSize.Width);
+            wValues = Math.Min(wValues, pnSignalValues.ClientSize.Width);
+            int wGraphs = pnSignalGraphs.ClientSize.Width;
+            int hRuler = bmGraphRuler.Height;
+            int hView = pnSignalGraphs.ClientSize.Height;
+
+            if (CurrentViewOnly)
+            {
+                bmPrint = new Bitmap(wNames + wValues + wGraphs, hRuler + hView);
+                Graphics grfx = Graphics.FromImage(bmPrint);
+                grfx.Clear(Color.White);
+                grfx.DrawImage(bmNames, 0, hRuler, new Rectangle(0, -pbSignalGraphs.Location.Y, wNames, hView), GraphicsUnit.Pixel);
+                grfx.DrawImage(bmValues, wNames, hRuler, new Rectangle(0, -pbSignalGraphs.Location.Y, wValues, hView), GraphicsUnit.Pixel);
+                grfx.DrawImage(bmGraphs, wNames + wValues, hRuler, new Rectangle(-pbSignalGraphs.Location.X, -pbSignalGraphs.Location.Y, wGraphs, hView), GraphicsUnit.Pixel);
+                grfx.DrawImage(bmGraphRuler, wNames + wValues, 0, new Rectangle(-pbSignalGraphs.Location.X, 0, wGraphs, hRuler), GraphicsUnit.Pixel);
+
+                grfx.DrawLine(new Pen(Color.LightGray, 2), wNames, 0, wNames, bmPrint.Height);
+                grfx.DrawLine(new Pen(Color.LightGray, 2), wNames + wValues, 0, wNames + wValues, bmPrint.Height);
+                grfx.DrawLine(new Pen(Color.LightGray, 2), 0, hRuler, bmPrint.Width, hRuler);
+                grfx.DrawString("Name", new Font(NameFont, FontStyle.Bold), brushText[1], TEXT_LEFT, hRuler / 2);
+                grfx.DrawString("Value", new Font(NameFont, FontStyle.Bold), brushText[1], MARGIN_LEFT + wNames, hRuler / 2);
+
+                bmPrint.Save(Application.StartupPath + "\\PrintView.png");
+            }
+            else
+            {
+                bmPrint = new Bitmap(wNames + wValues + bmSignalGraphs.Width, bmGraphs.Height + bmGraphRuler.Height);
+                Graphics grfx = Graphics.FromImage(bmPrint);
+                grfx.Clear(Color.White);
+                grfx.DrawImage(bmNames, 0, hRuler);
+                grfx.DrawImage(bmValues, wNames, hRuler);
+                grfx.DrawImage(bmGraphs, wNames + wValues, hRuler);
+                grfx.DrawImage(bmGraphRuler, wNames + wValues, 0);
+
+                grfx.DrawLine(new Pen(Color.LightGray, 2), wNames, 0, wNames, bmPrint.Height);
+                grfx.DrawLine(new Pen(Color.LightGray, 2), wNames + wValues, 0, wNames + wValues, bmPrint.Height);
+                grfx.DrawLine(new Pen(Color.LightGray, 2), 0, hRuler, bmPrint.Width, hRuler);
+                grfx.DrawString("Name", new Font(NameFont, FontStyle.Bold), brushText[1], TEXT_LEFT, hRuler / 2);
+                grfx.DrawString("Value", new Font(NameFont, FontStyle.Bold), brushText[1], MARGIN_LEFT + wNames, hRuler / 2);
+
+                bmPrint.Save(Application.StartupPath + "\\PrintAll.png");
+            }
+
+            return bmPrint;
+        }
+
+        /// <summary>
+        /// ToolStripMenuItem click handler to print everything.
+        /// </summary>
+        /// <param name="sender">Reference to the sender object.</param>
+        /// <param name="e">Event argument passed with the call.</param>
+        private void tsmiPrint_Click(object sender, EventArgs e)
+        {
+            Bitmap bmPrint = CreatePrintBitmap(sender == tsmiPrintView);
+            PrintContents pc = new PrintContents(pdPrintContents, bmPrint, AppSettings);
+            pdPrintContents.Document = pc.PrintDocument;
+            pdPrintContents.PrinterSettings.FromPage = 1;
+            pdPrintContents.PrinterSettings.ToPage = pc.TotalPages;
+            pdPrintContents.AllowSomePages = true;
+            pdPrintContents.PrinterSettings.DefaultPageSettings.Landscape = AppSettings.PrintPageSettings.Landscape;
+
+            if (pdPrintContents.ShowDialog() == DialogResult.OK)
+            {
+                SetEnabled(false);
+                pc.Print();
+                SetEnabled(true);
+            }
+
+        }
+
+        ///// <summary>
+        ///// Page print handler to draw the contents on the canvas.
+        ///// </summary>
+        ///// <param name="sender">Reference to the sender object.</param>
+        ///// <param name="e">Event argument passed with the call.</param>
+        //private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
+        //{
+        //    float w = bmPrint.Width * 100 / bmPrint.HorizontalResolution;
+        //    float h = bmPrint.Height * 100 / bmPrint.VerticalResolution;
+        //    float xfact = w / e.PageBounds.Width;
+        //    float yfact = h / e.PageBounds.Height;
+        //    if ((xfact>1) || yfact > 1)
+        //    {
+        //        w /= xfact;
+        //        h /= yfact;
+        //    }
+        //    e.Graphics.DrawImage(bmPrint, 0, 0, (int)w,(int)h);
+        //    e.HasMorePages = false;      
+        //}
+
         /// <summary>
         /// ToolStripMenuItem click handler to exit the application.
         /// </summary>
@@ -2621,7 +2903,7 @@ namespace DigiSim
             Close();
         }
 
-        #endregion File Menu Handlers
+#endregion File Menu Handlers
 
         #region Edit Menu Handlers
         /// <summary>
@@ -2884,8 +3166,8 @@ namespace DigiSim
                     leftX = Math.Min(Math.Max(xx - x0, 0), newMaxWidth); // - pnSignalGraphs.Width);
                     label4.Text = "Zoom=" + SignalsZoomX.ToString("F6") + " xx=" + xx.ToString() + " x0=" + x0.ToString() + "  leftX="+ leftX.ToString()+ "  newMaxWidth =" + newMaxWidth.ToString();
 
-                    DisplaySignalGraphs();
-                    DisplaySignalGraphRuler();
+                    DisplaySignalGraphs(ref bmSignalGraphs, pbSignalGraphs);
+                    DisplaySignalGraphRuler(ref bmSignalGraphRuler, pbSignalGraphRuler);
 
                     pnSignalGraphs.HorizontalScroll.Value = leftX;
 
@@ -2927,8 +3209,8 @@ namespace DigiSim
             }
             label4.Text = "Zoom=" + SignalsZoomX.ToString("F6")  + " x0=" + x0.ToString() + "  w=" + pnSignalGraphs.ClientSize.Width.ToString();
 
-            DisplaySignalGraphs();
-            DisplaySignalGraphRuler();
+            DisplaySignalGraphs(ref bmSignalGraphs, pbSignalGraphs);
+            DisplaySignalGraphRuler(ref bmSignalGraphRuler, pbSignalGraphRuler);
 
             pnSignalGraphs.HorizontalScroll.Value = leftX;
 
@@ -2952,8 +3234,8 @@ namespace DigiSim
             DisplayMaxTime = SimulationMaxTime;
             SignalsZoomX = CalcZoom(DisplayMinTime, DisplayMaxTime);
             pnSignalGraphs.HorizontalScroll.Value = 0;
-            DisplaySignalGraphs();
-            DisplaySignalGraphRuler();
+            DisplaySignalGraphs(ref bmSignalGraphs, pbSignalGraphs);
+            DisplaySignalGraphRuler(ref bmSignalGraphRuler, pbSignalGraphRuler);
             CalcMarkerX();
             pbSignalGraphs.Location = new Point(0, pbSignalGraphs.Location.Y);
             this.ResumeLayout();
@@ -3284,7 +3566,10 @@ namespace DigiSim
             set { tsmiAutoCloseImportForm.Checked = value; }
         }
 
+
+
         #endregion Public Properties
+
 
     }
 }

@@ -172,14 +172,24 @@ namespace ChipLibrary
             }
             else if ((CPU.State == SignalState.H) && (lastCPU == SignalState.L) && (CPD.State == SignalState.H))
             {
-                counter++;
+                counter = (counter +1) & 0xF;
                 SetNewStates(Time);
             }
             else if ((CPD.State == SignalState.H) && (lastCPD == SignalState.L) && (CPU.State == SignalState.H))
-            { 
-                counter--;
+            {
+                counter = (counter - 1) & 0xF;
                 SetNewStates(Time);
             }
+
+            if ((counter == 15) && (CPU.State == SignalState.L))
+                TCU.NewOutState = SignalState.L;
+            else
+                TCU.NewOutState = SignalState.H;
+
+            if ((counter == 0) && (CPD.State == SignalState.L))
+                TCD.NewOutState = SignalState.L;
+            else
+                TCD.NewOutState = SignalState.H;
 
             lastPLn = PLn.State;
             lastCPU = CPU.State;

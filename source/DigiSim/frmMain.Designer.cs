@@ -49,6 +49,10 @@ namespace DigiSim
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiExportConnections = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmiPrintSetup = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPrintView = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPrintAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiExit = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiExpandAll = new System.Windows.Forms.ToolStripMenuItem();
@@ -124,6 +128,8 @@ namespace DigiSim
             this.ofdKiCadNetlist = new System.Windows.Forms.OpenFileDialog();
             this.ofdDigiSimFile = new System.Windows.Forms.OpenFileDialog();
             this.sfdDigiSimFile = new System.Windows.Forms.SaveFileDialog();
+            this.psPrintSetup = new System.Windows.Forms.PageSetupDialog();
+            this.pdPrintContents = new System.Windows.Forms.PrintDialog();
             this.msMainMenu.SuspendLayout();
             this.ssStatus.SuspendLayout();
             this.pnControl.SuspendLayout();
@@ -168,6 +174,10 @@ namespace DigiSim
             this.toolStripMenuItem1,
             this.tsmiExportConnections,
             this.toolStripMenuItem2,
+            this.tsmiPrintSetup,
+            this.tsmiPrintView,
+            this.tsmiPrintAll,
+            this.toolStripSeparator3,
             this.tsmiExit});
             this.tsmiFile.Name = "tsmiFile";
             this.tsmiFile.Size = new System.Drawing.Size(37, 20);
@@ -282,6 +292,32 @@ namespace DigiSim
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
             this.toolStripMenuItem2.Size = new System.Drawing.Size(183, 6);
+            // 
+            // tsmiPrintSetup
+            // 
+            this.tsmiPrintSetup.Name = "tsmiPrintSetup";
+            this.tsmiPrintSetup.Size = new System.Drawing.Size(186, 22);
+            this.tsmiPrintSetup.Text = "Print Setup";
+            this.tsmiPrintSetup.Click += new System.EventHandler(this.tsmiPrintSetup_Click);
+            // 
+            // tsmiPrintView
+            // 
+            this.tsmiPrintView.Name = "tsmiPrintView";
+            this.tsmiPrintView.Size = new System.Drawing.Size(186, 22);
+            this.tsmiPrintView.Text = "Print View";
+            this.tsmiPrintView.Click += new System.EventHandler(this.tsmiPrint_Click);
+            // 
+            // tsmiPrintAll
+            // 
+            this.tsmiPrintAll.Name = "tsmiPrintAll";
+            this.tsmiPrintAll.Size = new System.Drawing.Size(186, 22);
+            this.tsmiPrintAll.Text = "Print All";
+            this.tsmiPrintAll.Click += new System.EventHandler(this.tsmiPrint_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(183, 6);
             // 
             // tsmiExit
             // 
@@ -996,6 +1032,10 @@ namespace DigiSim
             this.sfdDigiSimFile.Filter = "DigiSim Files|*.dgsf";
             this.sfdDigiSimFile.Title = "Save to DigiSimFile";
             // 
+            // pdPrintContents
+            // 
+            this.pdPrintContents.UseEXDialog = true;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1144,6 +1184,12 @@ namespace DigiSim
         private System.Windows.Forms.ToolStripStatusLabel tsslTime;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
         private System.Windows.Forms.ToolStripMenuItem tsmiSearchSignal;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPrintAll;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPrintView;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPrintSetup;
+        private System.Windows.Forms.PageSetupDialog psPrintSetup;
+        private System.Windows.Forms.PrintDialog pdPrintContents;
     }
 }
 

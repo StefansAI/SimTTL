@@ -1160,41 +1160,145 @@ namespace Schematics
             }
 
             Log(0, "Checking for RCs");
-            int n = 0;
+            List<Pin> outPins = new List<Pin>();
             foreach (Comp comp in Comps)
             {
                 if ((comp.BaseElement != null) && (comp.BaseElement is Resistor))
                 {
-                    Resistor r = (Resistor)comp.BaseElement;
-                    for (int i = 0; i < r.Passive.Length; i++)
+                    Resistor r1 = (Resistor)comp.BaseElement;
+                    for (int i = 0; i < r1.Passive.Length; i++)
                     {
-                        //if ((IsGroundOrLogicLow(r.Passive[i].ConnectedNet) == false) && (IsPowerOrLogicHigh(r.Passive[i].ConnectedNet) == false))
+                        //if ((IsGroundOrLogicLow(r1.Passive[i].ConnectedNet) == false) && (IsPowerOrLogicHigh(r1.Passive[i].ConnectedNet) == false))
                         {
-                            Pin inPin = null;
+                            Pin inPinAtC = null;
                             Capacitor c = null;
+                            Resistor r2 = null;
+                            Pin r2Cpin = null;
+                            Diode d1 = null;
+                            Diode d2 = null;
 
-                            if (r.Passive[i].ConnectedNet != null)
-                                foreach (Pin pin in r.Passive[i].ConnectedNet.ConnectedPins)
+                            if (r1.Passive[i].ConnectedNet != null)
+                                foreach (Pin pin in r1.Passive[i].ConnectedNet.ConnectedPins)
                                 {
                                     if (pin.Mode == LineMode.In)
-                                        inPin = pin;
-                                    else if ((pin.Mode == LineMode.Passive) && (pin.Owner is Capacitor))
-                                        if (Net.IsGroundOrLogicLow(((Capacitor)pin.Owner).OtherPin(pin).ConnectedNet.Name))
-                                            c = (Capacitor)pin.Owner;
+                                        inPinAtC = pin;
+                                    else if (pin.Mode == LineMode.Passive)
+                                    {
+                                        if (pin.Owner is Capacitor)
+                                        {
+                                            if (Net.IsGroundOrLogicLow(((Capacitor)pin.Owner).OtherPin(pin).ConnectedNet.Name))
+                                                c = (Capacitor)pin.Owner;
+                                        }
+                                        else if ((pin.Owner is Resistor) && (pin.Owner != r1))
+                                        {
+                                            r2 = (Resistor)pin.Owner;
+                                            r2Cpin = pin;
+                                        }
+                                    }
                                 }
-                            if ((inPin != null) && (c != null))
-                            {
-                                Pin outPin = null;
-                                foreach (Pin pin in inPin.ConnectedNet.ConnectedPins)
-                                    if (pin.Mode == LineMode.Out)
-                                        outPin = pin;
 
-                                if (outPin == null)
+                            if ((inPinAtC != null) && (c != null))
+                            {
+                                Pin outPinAtC = null;
+                                foreach (Pin pin in inPinAtC.ConnectedNet.ConnectedPins)
+                                    if (pin.Mode == LineMode.Out)
+                                        outPinAtC = pin;
+
+                                if ((outPinAtC == null) && (outPins.IndexOf(inPinAtC) <0))
                                 {
-                                    RC_LP lp = new RC_LP("LP" + (n++).ToString(), r.OtherPin(r.Passive[i]).ConnectedNet, r.Value, c.Value);
-                                    Schematics.Elements.Add(lp);
-                                    inPin.ConnectedNet.ConnectedPins.Add(lp.Out);
-                                    Log(-2, "Low Pass " + lp.Name + "  R=" + r.ValueStr + "/C=" + c.ValueStr + "  added to " + inPin.Owner.Name + "  Pin=" + inPin.PinNo.ToString());
+                                    outPins.Add(inPinAtC);
+                                    Resistor r_pullup = r1;
+
+                                    if (r2 == null)
+                                    {
+                                        RC_LP lp = new RC_LP("LP" + outPins.Count.ToString(), r1.OtherPin(r1.Passive[i]).ConnectedNet, r1.Value, r1.Value, c.Value);
+                                        Schematics.Elements.Add(lp);
+                                        inPinAtC.ConnectedNet.ConnectedPins.Add(lp.Out);
+                                        Log(-2, "Low Pass " + lp.Name + "  R=" + r1.ValueStr + "/C=" + c.ValueStr + "  added to " + inPinAtC.Owner.Name + "  Pin=" + inPinAtC.PinNo.ToString());
+                                    }
+                                    else
+                                    {
+                                        Pin r1in = r1.OtherPin(inPinAtC);
+                                        Pin r1inDrivingPin = null;
+                                        Pin d1inPin = null;
+                                        if (r1in.ConnectedNet != null)
+                                            foreach (Pin pin in r1in.ConnectedNet.ConnectedPins)
+                                            {
+                                                if (pin.Mode == LineMode.Out)
+                                                    r1inDrivingPin = pin;
+                                                else if (pin.Owner is Diode)
+                                                {
+                                                    d1 = (Diode)pin.Owner;
+                                                    d1inPin = d1.OtherPin(pin);
+                                                }
+                                            }
+
+                                        Pin r2in = r2.OtherPin(r2Cpin);
+                                        Pin r2inDrivingPin = null;
+                                        Pin d2inPin = null;
+                                        if (r2in.ConnectedNet != null)
+                                            foreach (Pin pin in r2in.ConnectedNet.ConnectedPins)
+                                            {
+                                                if (pin.Mode == LineMode.Out)
+                                                    r2inDrivingPin = pin;
+                                                else if (pin.Owner is Diode)
+                                                {
+                                                    d2 = (Diode)pin.Owner;
+                                                    d2inPin = d2.OtherPin(pin);
+                                                }
+                                            }
+
+                                        double rLvalue = -1, rHvalue = -1;
+                                        Net drivingNet = null;
+                                        if ((r1inDrivingPin != null) && (d2inPin != null) && (r1inDrivingPin.ConnectedNet == d2inPin.ConnectedNet))
+                                        {
+                                            if (d2inPin.Name == "K")
+                                            {
+                                                rLvalue = 1 / ((1 / r1.Value) + (1 / r2.Value));
+                                                rHvalue = r1.Value;
+                                            }
+                                            else
+                                            {
+                                                rLvalue = r2.Value;
+                                                rHvalue = 1 / ((1 / r1.Value) + (1 / r2.Value));
+                                            }
+                                            drivingNet = r1inDrivingPin.ConnectedNet;
+                                            r_pullup = r1;
+                                        }
+                                        else if ((r2inDrivingPin != null) && (d1inPin != null) && (r2inDrivingPin.ConnectedNet == d1inPin.ConnectedNet))
+                                        {
+                                            if (d1inPin.Name == "K")
+                                            {
+                                                rLvalue = 1 / ((1 / r1.Value) + (1 / r2.Value));
+                                                rHvalue = r1.Value;
+                                            }
+                                            else
+                                            {
+                                                rLvalue = r2.Value;
+                                                rHvalue = 1 / ((1 / r1.Value) + (1 / r2.Value));
+                                            }
+                                            drivingNet = r2inDrivingPin.ConnectedNet;
+                                            r_pullup = r2;
+                                        }
+
+                                        if ((rLvalue>0) && (rHvalue>0) && (drivingNet != null))
+                                        {
+                                            RC_LP lp = new RC_LP("LP" + outPins.Count.ToString(), drivingNet, rLvalue, rHvalue, c.Value);
+                                            Schematics.Elements.Add(lp);
+                                            inPinAtC.ConnectedNet.ConnectedPins.Add(lp.Out);
+                                            Log(-2, "Low Pass Asym" + lp.Name + "  RL=" + rLvalue.ToString("F0") + "  RH=" + rHvalue.ToString("F0") + " C=" + c.ValueStr + "  added to " + inPinAtC.Owner.Name + "  Pin=" + inPinAtC.PinNo.ToString());
+                                        }
+                                    }
+
+                                    Schematics.RemoveElement(r1);
+                                    Schematics.RemoveElement(r2);
+                                    Schematics.RemoveElement(c);
+                                    Schematics.RemoveElement(d1);
+                                    Schematics.RemoveElement(d2);
+                                    Schematics.Elements.Add(r_pullup);
+                                    Schematics.LogicLevel.H.ConnectedNet.ConnectedPins.Add(r_pullup.Passive[0]);
+                                    inPinAtC.ConnectedNet.ConnectedPins.Add(r_pullup.Passive[1]);
+
                                 }
                             }
                         }

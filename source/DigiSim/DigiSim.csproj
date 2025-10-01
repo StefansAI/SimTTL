@@ -83,6 +83,7 @@
       <DependentUpon>frmSignalSelect.cs</DependentUpon>
     </Compile>
     <Compile Include="Marker.cs" />
+    <Compile Include="PrintContents.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmMain.resx">
