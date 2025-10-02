@@ -65,7 +65,7 @@ namespace Schematics
         BenEater8Bit,
         GigatronTTL,
         NetlistImport,
-        DigiSimFile
+        SimTTLFile
     }
 
 

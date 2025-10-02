@@ -310,7 +310,7 @@ namespace Schematics
 
         private void WriteOpCodes()
         {
-            StreamWriter sw = new StreamWriter("C:\\Users\\stefa\\source\\repos\\DigiSim\\DigiSim\\bin\\Debug\\opcodes.prn");
+            StreamWriter sw = new StreamWriter("C:\\Users\\stefa\\source\\repos\\SimTTL\\SimTTL\\bin\\Debug\\opcodes.prn");
             for (int i = 0; i < 256; i++)
                 sw.WriteLine(i.ToString("X2") + "\t" + (i >> 5).ToString() + "\t" + ((i >> 2) & 7).ToString() + "\t" + (i & 3).ToString() + "\t" + DisAssemble( (uint)(i | (0xAA << 8))  ));
             sw.Close();

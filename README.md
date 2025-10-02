@@ -1,11 +1,11 @@
-<h1 style="text-align: center;">DigiSim</h1>
+<h1 style="text-align: center;">SimTTL</h1>
 <h2 style="text-align: center;">Digital Simulation of TTL Circuits</h2>
 <br>
 <div style="text-align: center;">
   <img src="docs/assets/images/mainscreen.png" />
 </div>
 <br>
-DigiSim is a simple simulator for TTL circuits to display the timing behavior similar to a logic analyzer. The GUI looks familiar to anyone programming and simulating Xilinx FPGAs. DigiSim can load KiCad-9 netlists to create an internal model. File names embedded in the schematics can be used to automatically load binaries into RAMs, ROMs or GALs for the simulation. A text file can provide the mnemonic information for a very simple disassembler.
+SimTTL is a simple simulator for TTL circuits to display the timing behavior similar to a logic analyzer. The GUI looks familiar to anyone programming and simulating Xilinx FPGAs. SimTTL can load KiCad-9 netlists to create an internal model. File names embedded in the schematics can be used to automatically load binaries into RAMs, ROMs or GALs for the simulation. A text file can provide the mnemonic information for a very simple disassembler.
 <br><br>
 <h3 style="text-align: center;">Background</h3>
 <br>
@@ -15,15 +15,15 @@ So, the first attempt was creating a nice GUI that is close to what I used to wo
 <br><br>
 <h3 style="text-align: center;">Repository Structure</h3>
 <h4><b>/bin/</b></h4>
-    - <b>DigiSim.exe</b> and DLLs: ready to run on Windows <br>
+    - <b>SimTTL.exe</b> and DLLs: ready to run on Windows <br>
     - XML files containing settings for different sample cases<br>
     - <b>/BenEater8bit/</b>: Support files for BenEater implementation<br>
     - <b>/GigatronTTL/</b>: Support files for GigatronTTL implementation<br>
-    - <b>/DigiSimFiles/</b>: Simulation examples for the TTL 6510 Computer design<br>
+    - <b>/SimTTLFiles/</b>: Simulation examples for the TTL 6510 Computer design<br>
 <br>
 <h4><b>/source/</b></h4>
-    - <b>DigiSim.sln</b>: Visual Studio C# Solution.<br>
-    - <b>/DigiSim/</b>: Main project with GUI.<br>
+    - <b>SimTTL.sln</b>: Visual Studio C# Solution.<br>
+    - <b>/SimTTL/</b>: Main project with GUI.<br>
     - <b>/SimBase/</b>: Project containing basic class definitions.<br>
     - <b>/ChipLibrary/</b>: A TTL chip collection project.<br>
     - <b>/Schematics/</b>: Basic schematics classes and examples.<br>
@@ -62,9 +62,9 @@ Right-clicking on a signal brings up a context menu which allows changing the ra
   <img src="docs/assets/images/file_menu_built_in.png" />
 </div>
 The file menu offers 2 major sources for loading a schematic: Hardcoded built-in or KiCad 9 Netlist. Clicking on the netlist import will show and OpenFileDialog to navigate to the netlist file. Previously opened files will be listed to the right of the import menu item for quicker access.<br>
-Once a schematic had been loaded and simulated, it can be stored with all wave forms as a DigiSimFile. Few sample files are provided in the bin-folder, which can be loaded from the file menu.<br>
+Once a schematic had been loaded and simulated, it can be stored with all wave forms as a SimTTLFile. Few sample files are provided in the bin-folder, which can be loaded from the file menu.<br>
 Saving the current settings will write all current GUI settings to the XML file for this schematic to be automatically loaded at next load. This function is useful when loading a netlist after changing GUI settings.<br>
-The print menu items allow printing of the current view portion or everything over the required amount of pages.<br>
+The print menu items allow printing of the current view portion or everything over the required number of pages.<br>
 Exiting the application will also automatically save the settings.<br>
 Exporting connections can be useful for checking hardcoded or imported schematics against the design.
 <br><br>
