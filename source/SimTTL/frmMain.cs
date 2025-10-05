@@ -182,7 +182,7 @@ namespace SimTTL
         /// <summary>Definition of the pen object used for High and Low level standard drawing.</summary>
         private Pen[] penSignalHLstd = new Pen[] { new Pen(Color.FromArgb(100, 255, 100), 1), new Pen(Color.FromArgb(00, 100, 00), 2) };
         /// <summary>Definition of the pen object used for High and Low level selected signal drawing.</summary>
-        private Pen[] penSignalHLsel = new Pen[] { new Pen(Color.FromArgb(150, 255, 150), 2), new Pen(Color.FromArgb(00, 200, 00), 2) };
+        private Pen[] penSignalHLsel = new Pen[] { new Pen(Color.FromArgb(150, 255, 150), 2), new Pen(Color.FromArgb(00, 150, 00), 2) };
         /// <summary>Definition of the pen object used for undefined level standard drawing.</summary>
         private Pen[] penSignalUstd = new Pen[] { new Pen(Color.FromArgb(255, 00, 00), 1), new Pen(Color.FromArgb(255, 00, 00), 2) };
         /// <summary>Definition of the pen object used for undefined level selected signal drawing.</summary>
@@ -830,12 +830,13 @@ namespace SimTTL
             return Math.Min(Math.Max((((X - MARGIN_LEFT) / SignalsZoomX) + DisplayMinTime), 0), SimulationMaxTime);
         }
 
+
         /// <summary>
-        /// Calculate the the required bitmap height to fit all signals depending on the ExpandAll flag.
+        /// Calculate the the minimum required bitmap height to fit all signals depending on the ExpandAll flag.
         /// </summary>
         /// <param name="ExpandAll">If true, all bus signals will be expanded. if false, only the ones marked will be expanded.</param>
-        /// <returns>Bitmap height needed to fit the signals.</returns>
-        private int GetBitmapHeight(bool ExpandAll)
+        /// <returns>Minimum bitmap height needed to fit the signals.</returns>
+        private int GetBitmapMinHeight(bool ExpandAll)
         {
             int n = 1;
             foreach (DisplaySignal ns in CurrentSignals)
@@ -846,7 +847,17 @@ namespace SimTTL
                     n++;
             }
             n += 5;
-            int h = Math.Min(n * VERTICAL_STEP + MARGIN_TOP + MARGIN_BOTTOM, ushort.MaxValue);
+            return Math.Min(n * VERTICAL_STEP + MARGIN_TOP + MARGIN_BOTTOM, ushort.MaxValue);
+        }
+
+        /// <summary>
+        /// Calculate the the required bitmap height to fit all signals depending on the ExpandAll flag.
+        /// </summary>
+        /// <param name="ExpandAll">If true, all bus signals will be expanded. if false, only the ones marked will be expanded.</param>
+        /// <returns>Bitmap height needed to fit the signals.</returns>
+        private int GetBitmapHeight(bool ExpandAll)
+        {
+            int h = GetBitmapMinHeight(ExpandAll);
             return Math.Max(h, pnSignalGraphs.ClientSize.Height);
         }
 
@@ -2807,7 +2818,8 @@ namespace SimTTL
             wValues = Math.Min(wValues, pnSignalValues.ClientSize.Width);
             int wGraphs = pnSignalGraphs.ClientSize.Width;
             int hRuler = bmGraphRuler.Height;
-            int hView = pnSignalGraphs.ClientSize.Height;
+            int hmin = GetBitmapMinHeight(ExpandAll);
+            int hView = Math.Min(hmin, pnSignalGraphs.ClientSize.Height);
 
             if (CurrentViewOnly)
             {
@@ -2873,25 +2885,6 @@ namespace SimTTL
 
         }
 
-        ///// <summary>
-        ///// Page print handler to draw the contents on the canvas.
-        ///// </summary>
-        ///// <param name="sender">Reference to the sender object.</param>
-        ///// <param name="e">Event argument passed with the call.</param>
-        //private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
-        //{
-        //    float w = bmPrint.Width * 100 / bmPrint.HorizontalResolution;
-        //    float h = bmPrint.Height * 100 / bmPrint.VerticalResolution;
-        //    float xfact = w / e.PageBounds.Width;
-        //    float yfact = h / e.PageBounds.Height;
-        //    if ((xfact>1) || yfact > 1)
-        //    {
-        //        w /= xfact;
-        //        h /= yfact;
-        //    }
-        //    e.Graphics.DrawImage(bmPrint, 0, 0, (int)w,(int)h);
-        //    e.HasMorePages = false;      
-        //}
 
         /// <summary>
         /// ToolStripMenuItem click handler to exit the application.

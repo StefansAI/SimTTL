@@ -147,6 +147,7 @@ namespace SimTTL
             grfx.Clear(Color.White);
 
             grfx.TranslateTransform((float)(-offsX), (float)(-offsY), MatrixOrder.Prepend);
+            grfx.DrawImage(ContentsBitmap, 0, 0);
 
             e.Graphics.DrawImageUnscaled(bmPage, x, y);
             bmPage.Dispose();
